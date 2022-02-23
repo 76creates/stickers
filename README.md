@@ -1,5 +1,5 @@
 # Stickers 👾
-Building blocks for [bubbletea](charmbracelet/bubbletea) using [lipgloss](charmbracelet/lipgloss).
+Building blocks for [bubbletea](https://github.com/charmbracelet/bubbletea) using [lipgloss](https://github.com/charmbracelet/lipgloss).
 
 ## Flex Box 📦
 Responsive grid box insipred by CSS flexbox.
