@@ -1,11 +1,16 @@
 # Stickers 👾
-Building blocks for [bubbletea](https://github.com/charmbracelet/bubbletea) using [lipgloss](https://github.com/charmbracelet/lipgloss).
+Is a collection of TUI elements, FlexBox and Table at the moment, its build for [bubbletea](https://github.com/charmbracelet/bubbletea) using [lipgloss](https://github.com/charmbracelet/lipgloss).
 
 ## Flex Box 📦
-Responsive grid box insipred by CSS flexbox.
+Responsive grid box insipred by CSS flexbox.<br>
+Easy to create responsive grids that scale using ratios between these elements.
 
 ## Table 🍰
-Responsive, x/y scrollable table using FlexBox.
+Responsive, x/y scrollable table using FlexBox.<br>
+Tabel viewer with ability to get the content of the cell over which the cursor is placed at.
+##### TODO
+- filtering
+- sorting
 
 ## Demo
 ### FlexBox+Table Demo
