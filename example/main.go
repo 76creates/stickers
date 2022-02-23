@@ -137,8 +137,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				}
 			}
-			//debug = m.table.GetCursorValue()
-			//deb = true
 		}
 
 	}
