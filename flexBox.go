@@ -77,7 +77,6 @@ func (r *FlexBox) Row(index int) *FlexBoxRow {
 	if index >= 0 && len(r.rows) > 0 && index < len(r.rows) {
 		r.setRecalculate()
 		return r.rows[index]
-		r.setRecalculate()
 	}
 	return nil
 }
@@ -89,6 +88,11 @@ func (r *FlexBox) GetRow(index int) (row FlexBoxRow, exists bool) {
 		return *r.rows[index], true
 	}
 	return FlexBoxRow{}, false
+}
+
+// MustGetRow same as GetRow only panics if row does not exist
+func (r *FlexBox) MustGetRow(index int) FlexBoxRow {
+	return *r.rows[index]
 }
 
 // UpdateRow replaces the FlexBoxRow on the given index
