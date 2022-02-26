@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"os"
@@ -31,33 +30,34 @@ var (
 
 type model struct {
 	flexBox *stickers.FlexBox
-	table   *stickers.Table
+	table   *stickers.TableSingleType[string]
 }
 
 func main() {
 	// read in CSV data
-	f, err := os.Open("sample.csv")
+	f, err := os.Open("../sample.csv")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	defer f.Close()
 
 	csvReader := csv.NewReader(f)
 	data, err := csvReader.ReadAll()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+
 	headers := data[0]
 	rows := data[1:]
 	ratio := []int{0, 10, 10, 5, 10}
-	minSize := []int{3, 5, 5, 2, 5}
+	minSize := []int{4, 5, 5, 2, 5}
 
 	m := model{
 		flexBox: stickers.NewFlexBox(0, 0).SetStyle(styleBackground),
-		table:   stickers.NewTable(0, 0, headers),
+		table:   stickers.NewTableSingleType[string](0, 0, headers),
 	}
-	m.table.SetRatio(ratio)
-	m.table.SetMinWidth(minSize)
+
+	m.table.SetRatio(ratio).SetMinWidth(minSize)
 	m.table.AddRows(rows)
 
 	r1 := m.flexBox.NewRow().AddCells(
@@ -105,10 +105,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.flexBox.SetHeight(windowHeight)
 		m.table.SetWidth(windowWidth)
 		m.table.SetHeight(windowHeight)
-		// Is it a key press?
 	case tea.KeyMsg:
 		switch msg.String() {
-		// These keys should exit the programod.
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "down":
@@ -119,10 +117,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.CursorLeft()
 		case "right":
 			m.table.CursorRight()
+		case "s":
+			x, _ := m.table.GetCursorLocation()
+			m.table.OrderByColumn(x)
 		case "enter", " ":
 			cellString := m.table.GetCursorValue()
+			// add content to random boxes on flex box
 			for ir := 0; ir < m.flexBox.RowsLen(); ir++ {
-				// don't' want it on middle row
+				// don't' want it on the middle row
 				if ir == 1 {
 					continue
 				}
@@ -146,11 +148,11 @@ func (m *model) View() string {
 	m.flexBox.ForceRecalculate()
 	_r := m.flexBox.Row(tableRowIndex)
 	if _r == nil {
-		log.Fatalln("could not find the table row")
+		panic("could not find the table row")
 	}
 	_c := _r.Cell(tableCellIndex)
 	if _c == nil {
-		log.Fatalln("could not find the table cell")
+		panic("could not find the table cell")
 	}
 	m.table.SetWidth(_c.GetWidth())
 	m.table.SetHeight(_c.GetHeight())

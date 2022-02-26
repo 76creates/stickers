@@ -6,11 +6,11 @@ Responsive grid box insipred by CSS flexbox.<br>
 Easy to create responsive grids that scale using ratios between these elements.
 
 ## Table 🍰
-Responsive, x/y scrollable table using FlexBox.<br>
-Tabel viewer with ability to get the content of the cell over which the cursor is placed at.
+Responsive, x/y scrollable, sortable table using FlexBox.<br>
+Tabel viewer with ability to get the content of the cell over which the cursor is placed at and sort the data by column. Sorting supports basic number and string type so number sorting is possible 🎉
 ##### TODO
 - filtering
-- sorting
+- sorting ✅
 
 ## Demo
 ### FlexBox+Table Demo

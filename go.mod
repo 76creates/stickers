@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/lipgloss v0.5.0
+	github.com/gocarina/gocsv v0.0.0-20211203214250-4735fba0c1d9
 )
 
 require (
