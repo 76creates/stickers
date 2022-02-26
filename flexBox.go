@@ -75,6 +75,7 @@ func (r *FlexBox) RowsLen() int {
 // note: forces the recalculation if found
 func (r *FlexBox) Row(index int) *FlexBoxRow {
 	if index >= 0 && len(r.rows) > 0 && index < len(r.rows) {
+		r.setRecalculate()
 		return r.rows[index]
 		r.setRecalculate()
 	}
