@@ -49,7 +49,7 @@ func (r *FlexBoxCell) SetContent(content string) *FlexBoxCell {
 	return r
 }
 
-// GetContent reeturns the cells raw content
+// GetContent returns the cells raw content
 func (r *FlexBoxCell) GetContent() string {
 	return r.content
 }
