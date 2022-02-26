@@ -12,22 +12,22 @@ import (
 
 var (
 	tableDefaultHeaderStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#7158e2")).
-				Foreground(lipgloss.Color("#ffffff"))
+		Background(lipgloss.Color("#7158e2")).
+		Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultFooterStyle = tableDefaultHeaderStyle.Copy().Align(lipgloss.Right).Height(1)
 	tableDefaultRowsStyle   = lipgloss.NewStyle().
-				Background(lipgloss.Color("#4b4b4b")).
-				Foreground(lipgloss.Color("#ffffff"))
+		Background(lipgloss.Color("#4b4b4b")).
+		Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsSubsequentStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#3d3d3d")).
-					Foreground(lipgloss.Color("#ffffff"))
+		Background(lipgloss.Color("#3d3d3d")).
+		Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsCursorStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#f7b731")).
-					Foreground(lipgloss.Color("#000000")).
-					Bold(true)
+		Background(lipgloss.Color("#f7b731")).
+		Foreground(lipgloss.Color("#000000")).
+		Bold(true)
 	tableDefaultCellCursorStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#f6e58d")).
-					Foreground(lipgloss.Color("#000000"))
+		Background(lipgloss.Color("#f6e58d")).
+		Foreground(lipgloss.Color("#000000"))
 )
 
 type tableStyleKey int
@@ -91,6 +91,10 @@ type Table struct {
 	columnType    []any
 	rows          [][]any
 
+	filteredRows   [][]any
+	filteredColumn int
+	filterString   string
+
 	// orderColumnIndex notes which column is used for sorting
 	// -1 means that no column is sorted
 	orderedColumnIndex int
@@ -99,9 +103,10 @@ type Table struct {
 	orderedColumnPhase TableSortingOrderKey
 
 	// rowsTopIndex top visible index
-	rowsTopIndex int
-	cursorIndexY int
-	cursorIndexX int
+	rowsTopIndex       int
+	cursorIndexY       int
+	cursorIndexX       int
+	cursorIndexYMemory int
 
 	height int
 	width  int
@@ -154,6 +159,9 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		columnType:         defaultTypes,
 		orderedColumnIndex: -1,
 		orderedColumnPhase: TableSortingDescending,
+
+		filteredColumn: 0,
+		filterString:   "",
 
 		height: height,
 		width:  width,
@@ -224,6 +232,7 @@ func (r *Table) SetHeight(value int) *Table {
 	r.rowsBoxHeight = value - 2
 	r.rowsBox.SetHeight(r.rowsBoxHeight)
 	r.setRowsUpdate()
+	r.setTopRow()
 	return r
 }
 
@@ -235,9 +244,27 @@ func (r *Table) SetWidth(value int) *Table {
 	return r
 }
 
+// UnsetFilter resets filtering
+func (r *Table) UnsetFilter() *Table {
+	r.filterString = ""
+	r.setTopRow()
+	r.setRowsUpdate()
+	return r
+}
+
+// SetFilter sets filtering string on a column
+func (r *Table) SetFilter(columnIndex int, s string) *Table {
+	if columnIndex < len(r.columnHeaders) {
+		r.filterString = s
+		r.filteredColumn = columnIndex
+		r.setRowsUpdate()
+	}
+	return r
+}
+
 // CursorDown move table cursor down
 func (r *Table) CursorDown() *Table {
-	if r.cursorIndexY+1 < len(r.rows) {
+	if r.cursorIndexY+1 < len(r.filteredRows) {
 		r.cursorIndexY++
 		r.setTopRow()
 		r.setRowsUpdate()
@@ -283,7 +310,7 @@ func (r *Table) GetCursorLocation() (int, int) {
 // GetCursorValue returns the string of the cell under the cursor
 func (r *Table) GetCursorValue() string {
 	// handle 0 rows situation and when table is not active
-	if len(r.rows) == 0 || r.cursorIndexX < 0 || r.cursorIndexY < 0 {
+	if len(r.filteredRows) == 0 || r.cursorIndexX < 0 || r.cursorIndexY < 0 {
 		return ""
 	}
 	return getStringFromOrdered(r.rows[r.cursorIndexY][r.cursorIndexX])
@@ -303,6 +330,7 @@ func (r *Table) AddRows(rows [][]any) (*Table, error) {
 		r.rows = append(r.rows, row)
 	}
 
+	r.applyFilter()
 	r.setRowsUpdate()
 	return r, nil
 }
@@ -321,7 +349,7 @@ func (r *Table) MustAddRows(rows [][]any) *Table {
 // TODO: allow user to disable ordering
 func (r *Table) OrderByColumn(index int) *Table {
 	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
-	if index < len(r.columnHeaders) && len(r.rows) > 1 {
+	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
 		r.updateOrderedVars(index)
 
 		// sorted rows
@@ -447,15 +475,16 @@ func (r *Table) updateRows() {
 		r.unsetRowsUpdate()
 		return
 	}
+	r.applyFilter()
 
 	// calculate the bottom most visible row index
 	rowsBottomIndex := r.rowsTopIndex + r.rowsBoxHeight
-	if rowsBottomIndex > len(r.rows) {
-		rowsBottomIndex = len(r.rows)
+	if rowsBottomIndex > len(r.filteredRows) {
+		rowsBottomIndex = len(r.filteredRows)
 	}
 
 	var rows []*FlexBoxRow
-	for ir, columns := range r.rows[r.rowsTopIndex:rowsBottomIndex] {
+	for ir, columns := range r.filteredRows[r.rowsTopIndex:rowsBottomIndex] {
 		// irCorrected is corrected row index since we iterate only visible rows
 		irCorrected := ir + r.rowsTopIndex
 
@@ -495,6 +524,27 @@ func (r *Table) updateRows() {
 	return
 }
 
+// applyFilter filters column n by a value s
+func (r *Table) applyFilter() *Table {
+	// sending empty string should reset the filtering
+	if r.filterString == "" {
+		r.filteredRows = r.rows
+		return r
+	}
+	var filteredRows [][]any
+	for _, row := range r.rows {
+		cellValue := getStringFromOrdered(row[r.filteredColumn])
+		// convert to lower, not sure if anybody needs case-sensitive filtering
+		// if you are reading this and need it, open up an issue :zap:
+		if strings.Contains(strings.ToLower(cellValue), strings.ToLower(r.filterString)) {
+			filteredRows = append(filteredRows, row)
+		}
+	}
+	r.filteredRows = filteredRows
+	r.setTopRow()
+	return r
+}
+
 // updateOrderedVars updates bits and pieces revolving around ordering
 // toggling between asc and desc
 // updating column header with arrows
@@ -529,23 +579,22 @@ func (r *Table) updateOrderedVars(index int) {
 
 // setTopRow calculates the row top index used when deciding what is visible
 func (r *Table) setTopRow() {
-	// if rows are empty set x and y to 0
+	// if rows are empty set y to 0, retain x pos
 	// will be useful for filtering
-	if len(r.rows) == 0 {
+	if len(r.filteredRows) == 0 {
 		r.cursorIndexY = 0
-		r.cursorIndexX = 0
-	} else if r.cursorIndexY > len(r.rows) {
+	} else if r.cursorIndexY > len(r.filteredRows) {
 		// when filtering if cursor is higher than row length
 		// set it to the bottom of the list
-		r.cursorIndexY = len(r.rows) - 1
+		r.cursorIndexY = len(r.filteredRows) - 1
 	}
 
 	// case when cursor is in between top or bottom visible row
 	if r.cursorIndexY >= r.rowsTopIndex && r.cursorIndexY < r.rowsTopIndex+r.rowsBoxHeight {
 		// if cursor is on the last item in row, adjust the row top
-		if r.cursorIndexY == len(r.rows)-1 {
+		if r.cursorIndexY == len(r.filteredRows)-1 {
 			// if all rows can fit on screen
-			if len(r.rows) <= r.rowsBoxHeight {
+			if len(r.filteredRows) <= r.rowsBoxHeight {
 				r.rowsTopIndex = 0
 				return
 			}
@@ -557,6 +606,16 @@ func (r *Table) setTopRow() {
 
 	// if cursor is above the top
 	if r.cursorIndexY < r.rowsTopIndex {
+		if r.cursorIndexY == len(r.filteredRows)-1 {
+			// if all rows can fit on screen
+			if len(r.filteredRows) <= r.rowsBoxHeight {
+				r.rowsTopIndex = 0
+				return
+			}
+			// fit max rows on the table
+			r.rowsTopIndex = r.cursorIndexY - (r.rowsBoxHeight - 1)
+			return
+		}
 		r.rowsTopIndex = r.cursorIndexY
 		return
 	}
