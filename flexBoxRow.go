@@ -70,6 +70,12 @@ func (r *FlexBoxRow) GetCellWithIndex(index int) (cell FlexBoxCell, exists bool)
 	return FlexBoxCell{}, false
 }
 
+// MustGetCellWithIndex returns the cell with the given index if existing, panic if not
+// note: it does not return a pointer
+func (r *FlexBoxRow) MustGetCellWithIndex(index int) FlexBoxCell {
+	return *r.cells[index]
+}
+
 // UpdateCellWithIndex replaces the cell on the given index if it exists
 // if its not existing no changes will apply
 func (r *FlexBoxRow) UpdateCellWithIndex(index int, cell *FlexBoxCell) {
