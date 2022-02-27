@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"log"
 	"os"
+	"unicode"
 )
 
 var selectedValue string = "\nselect something with spacebar or enter"
@@ -15,6 +16,7 @@ var selectedValue string = "\nselect something with spacebar or enter"
 type model struct {
 	table   *stickers.TableSingleType[string]
 	infoBox *stickers.FlexBox
+	headers []string
 }
 
 func main() {
@@ -38,7 +40,8 @@ func main() {
 
 	m := model{
 		table:   stickers.NewTableSingleType[string](0, 0, headers),
-		infoBox: stickers.NewFlexBox(0, 0).SetHeight(6),
+		infoBox: stickers.NewFlexBox(0, 0).SetHeight(7),
+		headers: headers,
 	}
 	// setup
 	m.table.SetRatio(ratio).SetMinWidth(minSize)
@@ -48,9 +51,10 @@ func main() {
 	// setup info box
 	infoText := `
 use the arrows to navigate
-s: sort by current column
+ctrl+s: sort by current column
+alphanumerics: filter column
 enter, spacebar: get column value
-q, ctrl+c: quit
+ctrl+c: quit
 `
 	r1 := m.infoBox.NewRow()
 	r1.AddCells([]*stickers.FlexBoxCell{
@@ -91,17 +95,49 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.CursorLeft()
 		case "right":
 			m.table.CursorRight()
-		case "s":
-			y, _ := m.table.GetCursorLocation()
-			m.table.OrderByColumn(y)
+		case "ctrl+s":
+			x, _ := m.table.GetCursorLocation()
+			m.table.OrderByColumn(x)
 		case "enter", " ":
 			selectedValue = m.table.GetCursorValue()
 			m.infoBox.Row(0).Cell(1).SetContent("\nselected cell: " + selectedValue)
+		case "backspace":
+			m.filterWithStr(msg.String())
+		default:
+			if len(msg.String()) == 1 {
+				r := msg.Runes[0]
+				if unicode.IsLetter(r) || unicode.IsDigit(r) {
+					m.filterWithStr(msg.String())
+				}
+			}
 		}
 
 	}
 	return m, nil
 }
+
+func (m *model) filterWithStr(key string) {
+	i, s := m.table.GetFilter()
+	x, _ := m.table.GetCursorLocation()
+	if x != i && key != "backspace" {
+		m.table.SetFilter(x, key)
+		return
+	}
+	if key == "backspace" {
+		if len(s) == 1 {
+			m.table.UnsetFilter()
+			return
+		} else if len(s) > 1 {
+			s = s[0 : len(s)-1]
+		} else {
+			return
+		}
+	} else {
+		s = s + key
+	}
+	m.table.SetFilter(i, s)
+}
+
 func (m *model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left, m.table.Render(), m.infoBox.Render())
 }
