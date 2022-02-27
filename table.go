@@ -253,6 +253,7 @@ func (r *Table) SetWidth(value int) *Table {
 // UnsetFilter resets filtering
 func (r *Table) UnsetFilter() *Table {
 	r.filterString = ""
+	r.filteredColumn = -1
 	r.setTopRow()
 	r.setRowsUpdate()
 	r.setHeadersUpdate()
