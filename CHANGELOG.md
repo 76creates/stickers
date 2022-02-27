@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2](https://github.com/76creates/stickers/compare/v1.1...v1.2) (2022-02-27)
+### Features
+* Filterin is now availible for `Table` and `TableSingleType` using new methods:
+    * `UnsetFilter` remove filtering
+    * `SetFilter` sets the filter on a column by index
+    * `GetFilter` gets index of filtered column and the value of the filter
+* Added `MustGetCellWithIndex`
+* Fixed visible table calculations when filtering
+* Added filter info to the status box
+* Header rendering of sorting and filtering symbols is improved
+
 ## [1.1](https://github.com/76creates/stickers/compare/v1.0...v1.1) (2022-02-26)
 ### ⚠ BREAKING CHANGES
 * Refactored `Table` to support sorting, some methods have changed most notably revolving around adding rows since now its taking [][]any instead of [][]string, initial `Table` is now closer to `TableSingleType[string]`
