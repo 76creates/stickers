@@ -270,6 +270,12 @@ func (r *Table) SetFilter(columnIndex int, s string) *Table {
 	return r
 }
 
+// GetFilter returns string used for filtering and the column index
+// TODO: enable multi column filtering
+func (r *Table) GetFilter() (columnIndex int, s string) {
+	return r.filteredColumn, r.filterString
+}
+
 // CursorDown move table cursor down
 func (r *Table) CursorDown() *Table {
 	if r.cursorIndexY+1 < len(r.filteredRows) {
