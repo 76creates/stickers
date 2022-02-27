@@ -390,21 +390,23 @@ func (r *Table) OrderByColumn(index int) *Table {
 func (r *Table) Render() string {
 	r.updateRows()
 	r.updateHeader()
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		r.headerBox.Render(),
-		r.rowsBox.Render(),
-		r.styles[TableFooterStyleKey].
-			Width(r.width).
-			Render(
-				fmt.Sprintf(
+
+	statusMessage := fmt.Sprintf(
 					"%d:%d / %d:%d ",
 					r.cursorIndexX,
 					r.cursorIndexY,
 					r.rowsBox.GetWidth(),
 					r.rowsBox.GetHeight(),
-				),
-			),
+	)
+	if r.cursorIndexX == r.filteredColumn {
+		statusMessage = fmt.Sprintf("filtered by: %q / %s", r.filterString, statusMessage)
+	}
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		r.headerBox.Render(),
+		r.rowsBox.Render(),
+		r.styles[TableFooterStyleKey].Width(r.width).Render(statusMessage),
 	)
 }
 
