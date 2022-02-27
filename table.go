@@ -5,29 +5,35 @@ import (
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"log"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 var (
 	tableDefaultHeaderStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#7158e2")).
-		Foreground(lipgloss.Color("#ffffff"))
+				Background(lipgloss.Color("#7158e2")).
+				Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultFooterStyle = tableDefaultHeaderStyle.Copy().Align(lipgloss.Right).Height(1)
 	tableDefaultRowsStyle   = lipgloss.NewStyle().
-		Background(lipgloss.Color("#4b4b4b")).
-		Foreground(lipgloss.Color("#ffffff"))
+				Background(lipgloss.Color("#4b4b4b")).
+				Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsSubsequentStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#3d3d3d")).
-		Foreground(lipgloss.Color("#ffffff"))
+					Background(lipgloss.Color("#3d3d3d")).
+					Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsCursorStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#f7b731")).
-		Foreground(lipgloss.Color("#000000")).
-		Bold(true)
+					Background(lipgloss.Color("#f7b731")).
+					Foreground(lipgloss.Color("#000000")).
+					Bold(true)
 	tableDefaultCellCursorStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#f6e58d")).
-		Foreground(lipgloss.Color("#000000"))
+					Background(lipgloss.Color("#f6e58d")).
+					Foreground(lipgloss.Color("#000000"))
+
+	tableDefaultSortAscChar  = "▲"
+	tableDefaultSortDescChar = "▼"
+	tableDefaultFilterChar   = "⑂"
 )
 
 type tableStyleKey int
@@ -249,6 +255,7 @@ func (r *Table) UnsetFilter() *Table {
 	r.filterString = ""
 	r.setTopRow()
 	r.setRowsUpdate()
+	r.setHeadersUpdate()
 	return r
 }
 
@@ -257,6 +264,7 @@ func (r *Table) SetFilter(columnIndex int, s string) *Table {
 	if columnIndex < len(r.columnHeaders) {
 		r.filterString = s
 		r.filteredColumn = columnIndex
+
 		r.setRowsUpdate()
 	}
 	return r
@@ -450,9 +458,52 @@ func (r *Table) updateHeader() *Table {
 	var cells []*FlexBoxCell
 	r.headerBox.SetStyle(r.styles[TableHeaderStyleKey])
 	for i, title := range r.columnHeaders {
+		// titleSuffix at the moment can be sort and filter characters
+		// filtering symbol should be visible always, if possible of course, and as far right as possible
+		// there should be a minimum of space bar between two symbols and symbol and row to the right
+		var titleSuffix string
+		_h, e := r.headerBox.GetRow(0)
+		// skip the case when we initialize table
+		if e {
+			_c := _h.MustGetCellWithIndex(i)
+			_w := _c.GetWidth()
+
+			// add sorting symbol if the sorting is active on the column
+			if r.orderedColumnIndex == i {
+				if r.orderedColumnPhase == TableSortingDescending {
+					titleSuffix = " " + tableDefaultSortDescChar
+				} else if r.orderedColumnPhase == TableSortingAscending {
+					titleSuffix = " " + tableDefaultSortAscChar
+				}
+			}
+
+			// add filtering symbol if the filtering is active on the column
+			if r.filteredColumn == i && r.filterString != "" {
+				// add at least one space bar between char to the left, and one to the right
+				titleSuffix = titleSuffix + strings.Repeat(
+					" ", int(math.Max(
+						1,
+						float64(
+							_w-utf8.RuneCountInString(title+titleSuffix)-2,
+						),
+					)),
+				) + tableDefaultFilterChar + " "
+			}
+
+			// if title and suffix exceed width trim the title
+			if _w-utf8.RuneCountInString(title+titleSuffix) < 0 {
+				// this will be the cae only when sort is on and filter is off
+				// add one space bar between sort and column to the right
+				if utf8.RuneCountInString(titleSuffix) == 2 {
+					titleSuffix = titleSuffix + " "
+				}
+				// trim the title
+				title = title[0:int(math.Max(0, float64(_w-utf8.RuneCountInString(titleSuffix))))]
+			}
+		}
 		cells = append(
 			cells,
-			NewFlexBoxCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title),
+			NewFlexBoxCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title+titleSuffix),
 		)
 	}
 	r.headerBox.SetRows(
@@ -542,35 +593,25 @@ func (r *Table) applyFilter() *Table {
 	}
 	r.filteredRows = filteredRows
 	r.setTopRow()
+	r.setHeadersUpdate()
 	return r
 }
 
 // updateOrderedVars updates bits and pieces revolving around ordering
 // toggling between asc and desc
-// updating column header with arrows
 // updating ordering vars on TableOrdered
 func (r *Table) updateOrderedVars(index int) {
-	// strip the column header title arrows if they were set previously
-	if r.orderedColumnIndex > -1 {
-		// always expect two characters, nothing fancy
-		r.columnHeaders[r.orderedColumnIndex] = strings.TrimSuffix(r.columnHeaders[r.orderedColumnIndex], " ▲")
-		r.columnHeaders[r.orderedColumnIndex] = strings.TrimSuffix(r.columnHeaders[r.orderedColumnIndex], " ▼")
-	}
-
 	// toggle between ascending and descending and set default first sort to ascending
-	// set updated column header title
 	if r.orderedColumnIndex == index {
 		switch r.orderedColumnPhase {
 		case TableSortingAscending:
 			r.orderedColumnPhase = TableSortingDescending
-			r.columnHeaders[index] = r.columnHeaders[index] + " ▼"
+
 		case TableSortingDescending:
 			r.orderedColumnPhase = TableSortingAscending
-			r.columnHeaders[index] = r.columnHeaders[index] + " ▲"
 		}
 	} else {
 		r.orderedColumnPhase = TableSortingDescending
-		r.columnHeaders[index] = r.columnHeaders[index] + " ▼"
 	}
 	r.orderedColumnIndex = index
 
