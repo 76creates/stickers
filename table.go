@@ -392,11 +392,11 @@ func (r *Table) Render() string {
 	r.updateHeader()
 
 	statusMessage := fmt.Sprintf(
-					"%d:%d / %d:%d ",
-					r.cursorIndexX,
-					r.cursorIndexY,
-					r.rowsBox.GetWidth(),
-					r.rowsBox.GetHeight(),
+		"%d:%d / %d:%d ",
+		r.cursorIndexX,
+		r.cursorIndexY,
+		r.rowsBox.GetWidth(),
+		r.rowsBox.GetHeight(),
 	)
 	if r.cursorIndexX == r.filteredColumn {
 		statusMessage = fmt.Sprintf("filtered by: %q / %s", r.filterString, statusMessage)
