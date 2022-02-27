@@ -328,7 +328,7 @@ func (r *Table) GetCursorValue() string {
 	if len(r.filteredRows) == 0 || r.cursorIndexX < 0 || r.cursorIndexY < 0 {
 		return ""
 	}
-	return getStringFromOrdered(r.rows[r.cursorIndexY][r.cursorIndexX])
+	return getStringFromOrdered(r.filteredRows[r.cursorIndexY][r.cursorIndexX])
 }
 
 // AddRows add multiple rows, will return error on the first instance of a row that does not match the type set on table

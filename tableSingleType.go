@@ -39,6 +39,8 @@ func (r *TableSingleType[T]) AddRows(rows [][]T) *TableSingleType[T] {
 		}
 		r.rows = append(r.rows, _row)
 	}
+
+	r.applyFilter()
 	r.setRowsUpdate()
 	return r
 }
