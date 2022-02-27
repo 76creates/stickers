@@ -650,6 +650,8 @@ func (r *Table) setTopRow() {
 			}
 			// fit max rows on the table
 			r.rowsTopIndex = r.cursorIndexY - (r.rowsBoxHeight - 1)
+		} else if r.cursorIndexY > len(r.filteredRows)-1 && len(r.filteredRows) != 0 {
+			r.cursorIndexY = len(r.filteredRows) - 1
 		}
 		return
 	}
@@ -671,7 +673,6 @@ func (r *Table) setTopRow() {
 	}
 
 	if r.cursorIndexY > r.rowsTopIndex {
-		//log.Fatal(fmt.Sprintf("[%d][%d][%d]", r.rowsTopIndex, r.cursorIndexY, r.rowsBoxHeight))
 		r.rowsTopIndex = r.cursorIndexY - r.rowsBoxHeight + 1
 		return
 	}
