@@ -13,7 +13,7 @@ Responsive, x/y scrollable, sortable table using FlexBox.<br>
 Tabel viewer with ability to get the content of the cell over which the cursor is placed at and sort the data by column. Sorting supports basic number and string type so number sorting is possible 🎉
 ![Table Multi-Type Demo](https://raw.githubusercontent.com/76creates/stickers/master/.github/images/table-multi-type.gif)
 ##### TODO
-- filtering
+- filtering ✅
 - sorting ✅
 
 ## Known issues
