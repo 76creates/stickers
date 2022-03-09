@@ -187,10 +187,15 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 }
 
 // SetRatio replaces the ratio slice, it has to be exactly the len of the headers/rows slices
-// if it's not matching len it will trigger fatal error
+// also each value have to be greater than 0, if either fails we panic
 func (r *Table) SetRatio(values []int) *Table {
 	if len(values) != len(r.columnHeaders) {
 		log.Fatalf("ratio list[%d] not of proper length[%d]\n", len(values), len(r.columnHeaders))
+	}
+	for _, val := range values {
+		if val < 1 {
+			log.Fatalf("ratio value must be greater than 0")
+		}
 	}
 	r.columnRatio = values
 	r.setHeadersUpdate()
