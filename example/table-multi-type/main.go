@@ -40,7 +40,7 @@ func main() {
 	}
 
 	headers := []string{"id", "First Name", "Last Name", "Age", "Occupation"}
-	ratio := []int{0, 10, 10, 5, 10}
+	ratio := []int{1, 10, 10, 5, 10}
 	minSize := []int{4, 5, 5, 2, 5}
 
 	var s string
