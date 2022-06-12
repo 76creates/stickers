@@ -37,7 +37,7 @@ func (r *TableSingleType[T]) AddRows(rows [][]T) *TableSingleType[T] {
 		for _, cell := range row {
 			_row = append(_row, cell)
 		}
-		r.rows = append(r.rows, _row)
+		r.Rows = append(r.Rows, _row)
 	}
 
 	r.applyFilter()

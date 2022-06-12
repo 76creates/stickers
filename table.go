@@ -3,13 +3,14 @@ package stickers
 import (
 	"errors"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
 	"log"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
@@ -91,11 +92,11 @@ type Table struct {
 	columnRatio []int
 	// columnMinWidth minimal width of the column
 	columnMinWidth []int
-	// columnHeaders column text headers
+	// ColumnHeaders column text headers
 	// TODO: make this optional, as well as footer
-	columnHeaders []string
-	columnType    []any
-	rows          [][]any
+	ColumnHeaders []string
+	ColumnType    []any
+	Rows          [][]any
 
 	filteredRows   [][]any
 	filteredColumn int
@@ -156,13 +157,13 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 	}
 
 	r := &Table{
-		columnHeaders:  columnHeaders,
+		ColumnHeaders:  columnHeaders,
 		columnRatio:    columnRatio,
 		columnMinWidth: columnMinWidth,
 		cursorIndexX:   0,
 		cursorIndexY:   0,
 
-		columnType:         defaultTypes,
+		ColumnType:         defaultTypes,
 		orderedColumnIndex: -1,
 		orderedColumnPhase: TableSortingDescending,
 
@@ -189,8 +190,8 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 // SetRatio replaces the ratio slice, it has to be exactly the len of the headers/rows slices
 // also each value have to be greater than 0, if either fails we panic
 func (r *Table) SetRatio(values []int) *Table {
-	if len(values) != len(r.columnHeaders) {
-		log.Fatalf("ratio list[%d] not of proper length[%d]\n", len(values), len(r.columnHeaders))
+	if len(values) != len(r.ColumnHeaders) {
+		log.Fatalf("ratio list[%d] not of proper length[%d]\n", len(values), len(r.ColumnHeaders))
 	}
 	for _, val := range values {
 		if val < 1 {
@@ -206,7 +207,7 @@ func (r *Table) SetRatio(values []int) *Table {
 // SetTypes sets the column type, setting this will remove all the rows so make sure you do it when instantiating
 // Table object or add new rows after this, types have to be one of Ordered interface types
 func (r *Table) SetTypes(columnTypes ...any) (*Table, error) {
-	if len(columnTypes) != len(r.columnHeaders) {
+	if len(columnTypes) != len(r.ColumnHeaders) {
 		return r, errors.New("column types not the same len as headers")
 	}
 	for i, t := range columnTypes {
@@ -218,8 +219,8 @@ func (r *Table) SetTypes(columnTypes ...any) (*Table, error) {
 		}
 	}
 	r.cursorIndexY, r.cursorIndexX = 0, 0
-	r.rows = [][]any{}
-	r.columnType = columnTypes
+	r.Rows = [][]any{}
+	r.ColumnType = columnTypes
 	r.setRowsUpdate()
 	return r, nil
 }
@@ -227,8 +228,8 @@ func (r *Table) SetTypes(columnTypes ...any) (*Table, error) {
 // SetMinWidth replaces the minimum width slice, it has to be exactly the len of the headers/rows slices
 // if it's not matching len it will trigger fatal error
 func (r *Table) SetMinWidth(values []int) *Table {
-	if len(values) != len(r.columnHeaders) {
-		log.Fatalf("min width list[%d] not of proper length[%d]\n", len(values), len(r.columnHeaders))
+	if len(values) != len(r.ColumnHeaders) {
+		log.Fatalf("min width list[%d] not of proper length[%d]\n", len(values), len(r.ColumnHeaders))
 	}
 	r.columnMinWidth = values
 	r.setHeadersUpdate()
@@ -267,7 +268,7 @@ func (r *Table) UnsetFilter() *Table {
 
 // SetFilter sets filtering string on a column
 func (r *Table) SetFilter(columnIndex int, s string) *Table {
-	if columnIndex < len(r.columnHeaders) {
+	if columnIndex < len(r.ColumnHeaders) {
 		r.filterString = s
 		r.filteredColumn = columnIndex
 
@@ -314,7 +315,7 @@ func (r *Table) CursorLeft() *Table {
 
 // CursorRight move table cursor right
 func (r *Table) CursorRight() *Table {
-	if r.cursorIndexX+1 < len(r.columnHeaders) {
+	if r.cursorIndexX+1 < len(r.ColumnHeaders) {
 		r.cursorIndexX++
 		// TODO: update row only
 		r.setRowsUpdate()
@@ -347,7 +348,7 @@ func (r *Table) AddRows(rows [][]any) (*Table, error) {
 	}
 	// append rows
 	for _, row := range rows {
-		r.rows = append(r.rows, row)
+		r.Rows = append(r.Rows, row)
 	}
 
 	r.applyFilter()
@@ -369,23 +370,23 @@ func (r *Table) MustAddRows(rows [][]any) *Table {
 // TODO: allow user to disable ordering
 func (r *Table) OrderByColumn(index int) *Table {
 	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
-	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
+	if index < len(r.ColumnHeaders) && len(r.filteredRows) > 1 {
 		r.updateOrderedVars(index)
 
 		// sorted rows
 		var sorted [][]any
 		// list of column values used for ordering
 		var orderingCol []any
-		for _, rw := range r.rows {
+		for _, rw := range r.Rows {
 			orderingCol = append(orderingCol, rw[index])
 		}
 		// get sorting index
 		sortingIndex := sortIndexByOrderedColumn(orderingCol, r.orderedColumnPhase)
 		// update rows
 		for _, i := range sortingIndex {
-			sorted = append(sorted, r.rows[i])
+			sorted = append(sorted, r.Rows[i])
 		}
-		r.rows = sorted
+		r.Rows = sorted
 		r.setRowsUpdate()
 	}
 	return r
@@ -436,9 +437,9 @@ func (r *Table) unsetHeadersUpdate() {
 func (r *Table) validateRow(cells ...any) error {
 	var message string
 	// check row len
-	if len(cells) != len(r.columnType) {
+	if len(cells) != len(r.ColumnType) {
 		message = fmt.Sprintf(
-			"len of row[%d] does not equal number of columns[%d]", len(cells), len(r.columnType),
+			"len of row[%d] does not equal number of columns[%d]", len(cells), len(r.ColumnType),
 		)
 		return TableRowLenError{msg: message}
 	}
@@ -447,10 +448,10 @@ func (r *Table) validateRow(cells ...any) error {
 		switch c.(type) {
 		case string, int, int8, int16, int32, float32, float64:
 			// check if the cell matches the type of the column
-			if reflect.TypeOf(c) != reflect.TypeOf(r.columnType[i]) {
+			if reflect.TypeOf(c) != reflect.TypeOf(r.ColumnType[i]) {
 				message = fmt.Sprintf(
 					"type of the cell[%v] on index %d not matching type of the column[%v]",
-					reflect.TypeOf(c), i, reflect.TypeOf(r.columnType[i]),
+					reflect.TypeOf(c), i, reflect.TypeOf(r.ColumnType[i]),
 				)
 				return TableBadCellTypeError{msg: message}
 			}
@@ -471,7 +472,7 @@ func (r *Table) updateHeader() *Table {
 	}
 	var cells []*FlexBoxCell
 	r.headerBox.SetStyle(r.styles[TableHeaderStyleKey])
-	for i, title := range r.columnHeaders {
+	for i, title := range r.ColumnHeaders {
 		// titleSuffix at the moment can be sort and filter characters
 		// filtering symbol should be visible always, if possible of course, and as far right as possible
 		// there should be a minimum of space bar between two symbols and symbol and row to the right
@@ -593,11 +594,11 @@ func (r *Table) updateRows() {
 func (r *Table) applyFilter() *Table {
 	// sending empty string should reset the filtering
 	if r.filterString == "" {
-		r.filteredRows = r.rows
+		r.filteredRows = r.Rows
 		return r
 	}
 	var filteredRows [][]any
-	for _, row := range r.rows {
+	for _, row := range r.Rows {
 		cellValue := getStringFromOrdered(row[r.filteredColumn])
 		// convert to lower, not sure if anybody needs case-sensitive filtering
 		// if you are reading this and need it, open up an issue :zap:
