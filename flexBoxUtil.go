@@ -48,17 +48,19 @@ func calculateRatio(distribute int, matrix []int) (ratioDistribution []int) {
 		combinedRatios += value
 	}
 
-	var reminder int
-	ratioDistribution, reminder = distributeToMatrix(distribute, combinedRatios, matrix)
-	if reminder > 0 {
-		for index, reminderAdded := range distributeReminder(reminder, matrix) {
-			ratioDistribution[index] += reminderAdded
-			reminder -= reminderAdded
+	if combinedRatios > 0 {
+		var reminder int
+		ratioDistribution, reminder = distributeToMatrix(distribute, combinedRatios, matrix)
+		if reminder > 0 {
+			for index, reminderAdded := range distributeReminder(reminder, matrix) {
+				ratioDistribution[index] += reminderAdded
+				reminder -= reminderAdded
+			}
 		}
-	}
-	// TODO: rethink maybe, does this fn belong here
-	if reminder < 0 {
-		// happens when there is minimum value
+		// TODO: rethink maybe, does this fn belong here
+		if reminder < 0 {
+			// happens when there is minimum value
+		}
 	}
 
 	return ratioDistribution
@@ -70,6 +72,7 @@ func distributeToMatrix(distribute int, combinedRatio int, matrix []int) (distri
 		ratioDistributionValue := int(math.Floor((float64(max) / float64(combinedRatio)) * float64(distribute)))
 		distribution = append(distribution, ratioDistributionValue)
 		reminder -= ratioDistributionValue
+
 	}
 	return distribution, reminder
 }
