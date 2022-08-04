@@ -3,13 +3,14 @@ package stickers
 import (
 	"errors"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
 	"log"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
@@ -360,6 +361,12 @@ func (r *Table) MustAddRows(rows [][]any) *Table {
 	if _, err := r.AddRows(rows); err != nil {
 		panic(err)
 	}
+	return r
+}
+
+// Clears all existing rows in current table
+func (r *Table) ClearAllRows() *Table {
+	r.rows = [][]any{}
 	return r
 }
 
