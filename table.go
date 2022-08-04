@@ -337,6 +337,16 @@ func (r *Table) GetCursorValue() string {
 	return getStringFromOrdered(r.filteredRows[r.cursorIndexY][r.cursorIndexX])
 }
 
+// GetCursorRow returns the string of the row under the cursor
+func (r *Table) GetCursorRow() []any {
+	ret := []any{}
+	// handle 0 rows situation and when table is not active
+	if len(r.filteredRows) == 0 || r.cursorIndexX < 0 || r.cursorIndexY < 0 {
+		return ret
+	}
+	return r.filteredRows[r.cursorIndexY]
+}
+
 // AddRows add multiple rows, will return error on the first instance of a row that does not match the type set on table
 // will update rows only when there are no errors
 func (r *Table) AddRows(rows [][]any) (*Table, error) {
