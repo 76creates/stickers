@@ -380,6 +380,14 @@ func (r *Table) ClearAllRows() *Table {
 	return r
 }
 
+// Gets row in current table
+func (r *Table) GetRow(index int) *[]any {
+	if index < 0 || index > len(r.rows)-1 {
+		return nil
+	}
+	return &r.rows[index]
+}
+
 // OrderByColumn orders rows by a column with the index n, simple bubble sort, nothing too fancy
 // does not apply when there is less than 2 row in a table
 // TODO: this messes up numbering that one might use, implement automatic indexing of rows
