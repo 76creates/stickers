@@ -3,14 +3,13 @@ package stickers
 import (
 	"errors"
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"log"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
 var (
