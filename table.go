@@ -247,6 +247,16 @@ func (r *Table) SetHeight(value int) *Table {
 	return r
 }
 
+// SetHeight sets the height of the table including the header and footer
+func (r *Table) GetHeight() int {
+	return r.height
+}
+
+// SetHeight sets the height of the table including the header and footer
+func (r *Table) GetWidth() int {
+	return r.width
+}
+
 // SetWidth sets the width of the table
 func (r *Table) SetWidth(value int) *Table {
 	r.width = value
