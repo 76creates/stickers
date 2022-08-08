@@ -95,6 +95,12 @@ func (r *FlexBoxCell) render(rowStyle lipgloss.Style) string {
 		Inherit(rowStyle).
 		Width(w).MaxWidth(w).
 		Height(h).MaxHeight(h)
+	renderLen := 0
 
-	return s.Render(r.content)
+	if len(r.content) < w {
+		renderLen = len(r.content)
+	} else {
+		renderLen = w
+	}
+	return s.Render(r.content[:renderLen])
 }
