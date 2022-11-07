@@ -34,12 +34,21 @@ var (
 	tableDefaultSortAscChar  = "▲"
 	tableDefaultSortDescChar = "▼"
 	tableDefaultFilterChar   = "⑂"
+
+	tableDefaultStyles = map[TableStyleKey]lipgloss.Style{
+		TableHeaderStyleKey:         tableDefaultHeaderStyle,
+		TableFooterStyleKey:         tableDefaultFooterStyle,
+		TableRowsStyleKey:           tableDefaultRowsStyle,
+		TableRowsSubsequentStyleKey: tableDefaultRowsSubsequentStyle,
+		TableRowsCursorStyleKey:     tableDefaultRowsCursorStyle,
+		TableCellCursorStyleKey:     tableDefaultCellCursorStyle,
+	}
 )
 
-type tableStyleKey int
+type TableStyleKey int
 
 const (
-	TableHeaderStyleKey tableStyleKey = iota
+	TableHeaderStyleKey TableStyleKey = iota
 	TableFooterStyleKey
 	TableRowsStyleKey
 	TableRowsSubsequentStyleKey
@@ -121,7 +130,7 @@ type Table struct {
 	// rowHeight fixed row height value, maybe this should be optional?
 	rowHeight int
 
-	styles map[tableStyleKey]lipgloss.Style
+	styles map[TableStyleKey]lipgloss.Style
 
 	headerBox *FlexBox
 	rowsBox   *FlexBox
@@ -146,14 +155,7 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		defaultTypes = append(defaultTypes, defaultType)
 	}
 
-	styles := map[tableStyleKey]lipgloss.Style{
-		TableHeaderStyleKey:         tableDefaultHeaderStyle,
-		TableFooterStyleKey:         tableDefaultFooterStyle,
-		TableRowsStyleKey:           tableDefaultRowsStyle,
-		TableRowsSubsequentStyleKey: tableDefaultRowsSubsequentStyle,
-		TableRowsCursorStyleKey:     tableDefaultRowsCursorStyle,
-		TableCellCursorStyleKey:     tableDefaultCellCursorStyle,
-	}
+	styles := tableDefaultStyles
 
 	r := &Table{
 		columnHeaders:  columnHeaders,
@@ -252,6 +254,19 @@ func (r *Table) SetWidth(value int) *Table {
 	r.width = value
 	r.rowsBox.SetWidth(value)
 	r.headerBox.SetWidth(value)
+	return r
+}
+
+// SetStyles allows overrides of styling elements of the table
+// When only a partial set of overrides are provided, the default styling will be used
+func (r *Table) SetStyles(styles map[TableStyleKey]lipgloss.Style) *Table {
+	mergedStyles := tableDefaultStyles
+	for key, style := range styles {
+		mergedStyles[key] = style
+	}
+	r.styles = mergedStyles
+	r.setRowsUpdate()
+	r.setHeadersUpdate()
 	return r
 }
 
