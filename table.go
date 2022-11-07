@@ -168,7 +168,7 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		orderedColumnIndex: -1,
 		orderedColumnPhase: TableSortingDescending,
 
-		filteredColumn: 0,
+		filteredColumn: -1,
 		filterString:   "",
 
 		height: height,
