@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [v1.3] (draft)
 ### Fixes
 * Fixed cursor not moving to the last visible row when filtering
+* Fixed margins and borders not being rendered correctly #8
 
 ## [v1.2](https://github.com/76creates/stickers/compare/v1.1...v1.2) (2022-02-27)
 ### Features

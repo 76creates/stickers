@@ -77,24 +77,36 @@ func (r *FlexBoxCell) GetStyle() lipgloss.Style {
 
 // GetWidth returns real width of the cell
 func (r *FlexBoxCell) GetWidth() int {
-	return r.width - r.style.GetHorizontalMargins()
+	return r.width - r.getExtraWidth()
 }
 
 // GetHeight returns real height of the cell
 func (r *FlexBoxCell) GetHeight() int {
-	return r.height - r.style.GetVerticalMargins()
+	return r.height - r.getExtraHeight()
 }
 
-// render renders the cell into string
-func (r *FlexBoxCell) render(rowStyle lipgloss.Style) string {
-	// width and height include margins so we subtract them
-	w := r.GetWidth()
-	h := r.GetHeight()
+func (r *FlexBoxCell) getMaxWidth() int {
+	return r.width
+}
 
+func (r *FlexBoxCell) getMaxHeight() int {
+	return r.height
+}
+
+func (r *FlexBoxCell) getExtraWidth() int {
+	return r.style.GetHorizontalMargins() + r.style.GetHorizontalBorderSize()
+}
+
+func (r *FlexBoxCell) getExtraHeight() int {
+	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
+}
+
+// render the cell into string
+func (r *FlexBoxCell) render(rowStyle lipgloss.Style) string {
 	s := r.GetStyle().
 		Inherit(rowStyle).
-		Width(w).MaxWidth(w).
-		Height(h).MaxHeight(h)
+		Width(r.GetWidth()).MaxWidth(r.getMaxWidth()).
+		Height(r.GetHeight()).MaxHeight(r.getMaxHeight())
 
 	return s.Render(r.content)
 }
