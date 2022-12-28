@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Fixes
 * Fixed cursor not moving to the last visible row when filtering
 * Fixed margins and borders not being rendered correctly #8
+* Additionally fixed margin and border issues on box
+### Features
+* Converted default cell inheritance of the row style to function `StylePassing` which can be set on the _Box_ and _Row_, if both box and row have style passing enabled, the row will inherit the box style before it passes style to the cells.
 
 ## [v1.2](https://github.com/76creates/stickers/compare/v1.1...v1.2) (2022-02-27)
 ### Features

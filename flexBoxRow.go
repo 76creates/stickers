@@ -11,7 +11,8 @@ import (
 // rows are stacked vertically
 type FlexBoxRow struct {
 	// style of the row
-	style lipgloss.Style
+	style         lipgloss.Style
+	styleAncestor bool
 
 	cells []*FlexBoxCell
 
@@ -96,6 +97,12 @@ func (r *FlexBoxRow) SetStyle(style lipgloss.Style) *FlexBoxRow {
 	return r
 }
 
+// StylePassing set whether the style should be passed to the cells
+func (r *FlexBoxRow) StylePassing(value bool) *FlexBoxRow {
+	r.styleAncestor = true
+	return r
+}
+
 func (r *FlexBoxRow) setHeight(value int) {
 	r.height = value
 	r.setRecalculate()
@@ -106,11 +113,22 @@ func (r *FlexBoxRow) setWidth(value int) {
 	r.setRecalculate()
 }
 
-func (r *FlexBoxRow) render() string {
+func (r *FlexBoxRow) render(inherited ...lipgloss.Style) string {
+	var inheritedStyle []lipgloss.Style
+
+	for _, style := range inherited {
+		r.style = r.style.Inherit(style)
+	}
+
+	// intentionally applied after row inherits the box style
+	if r.styleAncestor {
+		inheritedStyle = append(inheritedStyle, r.style)
+	}
+
 	r.recalculate()
 	var renderedCells []string
 	for _, cell := range r.cells {
-		renderedCells = append(renderedCells, cell.render())
+		renderedCells = append(renderedCells, cell.render(inheritedStyle...))
 	}
 	return r.style.
 		Width(r.getContentWidth()).MaxWidth(r.getMaxWidth()).

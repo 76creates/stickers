@@ -5,7 +5,9 @@ import "github.com/charmbracelet/lipgloss"
 // FlexBox responsive box grid insipred by CSS flexbox
 type FlexBox struct {
 	// style to apply to the gridbox itself
-	style lipgloss.Style
+	style         lipgloss.Style
+	styleAncestor bool
+
 	// width is fixed width of the box
 	width int
 	// height is fixed height of the box
@@ -39,6 +41,12 @@ func (r *FlexBox) SetStyle(style lipgloss.Style) *FlexBox {
 		UnsetMaxWidth().
 		UnsetHeight().
 		UnsetMaxHeight()
+	return r
+}
+
+// StylePassing set whether the style should be passed to the rows
+func (r *FlexBox) StylePassing(value bool) *FlexBox {
+	r.styleAncestor = true
 	return r
 }
 
@@ -138,10 +146,15 @@ func (r *FlexBox) GetWidth() int {
 // Render initiates the recalculation of the rows dimensions(height) if the recalculate flag is on,
 // and then it renders all the rows and combines them on the vertical axis
 func (r *FlexBox) Render() string {
+	var inheritedStyle []lipgloss.Style
+	if r.styleAncestor {
+		inheritedStyle = append(inheritedStyle, r.style)
+	}
+
 	r.recalculate()
 	var renderedRows []string
 	for _, row := range r.rows {
-		renderedRows = append(renderedRows, row.render())
+		renderedRows = append(renderedRows, row.render(inheritedStyle...))
 	}
 	// TODO: allow setting join align value for rows of variable width
 	return r.style.
