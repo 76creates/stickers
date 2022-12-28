@@ -10,7 +10,7 @@ import (
 // of the construction as it takes all of the needed ratio information from the cell slice
 // rows are stacked vertically
 type FlexBoxRow struct {
-	// style of the row, it will be passed to the cell when rendering for inheritance
+	// style of the row
 	style lipgloss.Style
 
 	cells []*FlexBoxCell
@@ -110,9 +110,12 @@ func (r *FlexBoxRow) render() string {
 	r.recalculate()
 	var renderedCells []string
 	for _, cell := range r.cells {
-		renderedCells = append(renderedCells, cell.render(r.style))
+		renderedCells = append(renderedCells, cell.render())
 	}
-	return r.style.Render(lipgloss.JoinHorizontal(lipgloss.Top, renderedCells...))
+	return r.style.
+		Width(r.getContentWidth()).MaxWidth(r.getMaxWidth()).
+		Height(r.getContentHeight()).MaxHeight(r.getMaxHeight()).
+		Render(lipgloss.JoinHorizontal(lipgloss.Top, renderedCells...))
 }
 
 func (r *FlexBoxRow) setRecalculate() {
@@ -123,7 +126,7 @@ func (r *FlexBoxRow) unsetRecalculate() {
 	r.recalculateFlag = false
 }
 
-// recalculate fetches the cells height/width distribution slices and sets it on the cells
+// recalculate fetches the cell's height/width distribution slices and sets it on the cells
 func (r *FlexBoxRow) recalculate() {
 	if r.recalculateFlag {
 		if len(r.cells) > 0 {
@@ -144,11 +147,11 @@ func (r *FlexBoxRow) distributeCellDimensions(xMatrix, yMatrix []int) {
 // calculateCellsDimensions calculates the height and width of the each cell
 func (r *FlexBoxRow) calculateCellsDimensions() (xMatrix, yMatrix []int) {
 	// calculate the cell height, it uses fixed combined ratio since the height of each cell
-	// is indivitual and does not stack, row height will be calculated using the ratio of the
+	// is individual and does not stack, row height will be calculated using the ratio of the
 	// highest cell in the slice
 	cellYMatrix, cellYMatrixMax := r.getCellHeightMatrix()
 	// reminder not needed here due to how combined ratio is passed
-	yMatrix, _ = distributeToMatrix(r.height, cellYMatrixMax, cellYMatrix)
+	yMatrix, _ = distributeToMatrix(r.getContentHeight(), cellYMatrixMax, cellYMatrix)
 
 	// get the min width matrix of the cells if any
 	withMinWidth := false
@@ -162,9 +165,9 @@ func (r *FlexBoxRow) calculateCellsDimensions() (xMatrix, yMatrix []int) {
 
 	// calculate the cell width matrix
 	if withMinWidth {
-		xMatrix = calculateRatioWithMinimum(r.width, r.getCellWidthMatrix(), minWidthMatrix)
+		xMatrix = calculateRatioWithMinimum(r.getContentWidth(), r.getCellWidthMatrix(), minWidthMatrix)
 	} else {
-		xMatrix = calculateRatio(r.width, r.getCellWidthMatrix())
+		xMatrix = calculateRatio(r.getContentWidth(), r.getCellWidthMatrix())
 	}
 
 	return xMatrix, yMatrix
@@ -188,4 +191,28 @@ func (r *FlexBoxRow) getCellWidthMatrix() (cellWidthMatrix []int) {
 		cellWidthMatrix = append(cellWidthMatrix, cell.ratioX)
 	}
 	return cellWidthMatrix
+}
+
+func (r *FlexBoxRow) getContentWidth() int {
+	return r.getMaxWidth() - r.getExtraWidth()
+}
+
+func (r *FlexBoxRow) getContentHeight() int {
+	return r.getMaxHeight() - r.getExtraHeight()
+}
+
+func (r *FlexBoxRow) getMaxWidth() int {
+	return r.width
+}
+
+func (r *FlexBoxRow) getMaxHeight() int {
+	return r.height
+}
+
+func (r *FlexBoxRow) getExtraWidth() int {
+	return r.style.GetHorizontalMargins() + r.style.GetHorizontalBorderSize()
+}
+
+func (r *FlexBoxRow) getExtraHeight() int {
+	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
 }

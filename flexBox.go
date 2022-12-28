@@ -127,12 +127,12 @@ func (r *FlexBox) SetWidth(value int) *FlexBox {
 
 // GetHeight yields current FlexBox height
 func (r *FlexBox) GetHeight() int {
-	return r.height
+	return r.getMaxHeight()
 }
 
 // GetWidth yields current FlexBox width
 func (r *FlexBox) GetWidth() int {
-	return r.width
+	return r.getMaxWidth()
 }
 
 // Render initiates the recalculation of the rows dimensions(height) if the recalculate flag is on,
@@ -144,7 +144,10 @@ func (r *FlexBox) Render() string {
 		renderedRows = append(renderedRows, row.render())
 	}
 	// TODO: allow setting join align value for rows of variable width
-	return r.style.Width(r.width).Height(r.height).Render(lipgloss.JoinVertical(lipgloss.Left, renderedRows...))
+	return r.style.
+		Width(r.getContentWidth()).MaxWidth(r.getMaxWidth()).
+		Height(r.getContentHeight()).MaxHeight(r.getMaxHeight()).
+		Render(lipgloss.JoinVertical(lipgloss.Left, renderedRows...))
 }
 
 // ForceRecalculate forces the recalculation for the box and all the rows
@@ -159,7 +162,7 @@ func (r *FlexBox) ForceRecalculate() {
 func (r *FlexBox) recalculate() {
 	if r.recalculateFlag {
 		if len(r.rows) > 0 {
-			r.distributeRowsHeight(r.calculateRowHeight())
+			r.distributeRowsDimensions(r.calculateRowHeight())
 		}
 		r.unsetRecalculate()
 	}
@@ -182,13 +185,14 @@ func (r *FlexBox) calculateRowHeight() (distribution []int) {
 		}
 		return fixedRows
 	}
-	return calculateMatrixRatio(r.height, r.getRowMatrix())
+	return calculateMatrixRatio(r.getContentHeight(), r.getRowMatrix())
 }
 
-// distributeRowsHeight sets height of each row per distribution array
-func (r *FlexBox) distributeRowsHeight(ratioDistribution []int) {
+// distributeRowsDimensions sets height and width of each row per distribution array
+func (r *FlexBox) distributeRowsDimensions(ratioDistribution []int) {
 	for index, row := range r.rows {
 		row.setHeight(ratioDistribution[index])
+		row.setWidth(r.getContentWidth())
 	}
 }
 
@@ -202,4 +206,28 @@ func (r *FlexBox) getRowMatrix() (rowMatrix [][]int) {
 		rowMatrix = append(rowMatrix, cellValues)
 	}
 	return rowMatrix
+}
+
+func (r *FlexBox) getContentWidth() int {
+	return r.getMaxWidth() - r.getExtraWidth()
+}
+
+func (r *FlexBox) getContentHeight() int {
+	return r.getMaxHeight() - r.getExtraHeight()
+}
+
+func (r *FlexBox) getMaxWidth() int {
+	return r.width
+}
+
+func (r *FlexBox) getMaxHeight() int {
+	return r.height
+}
+
+func (r *FlexBox) getExtraWidth() int {
+	return r.style.GetHorizontalMargins() + r.style.GetHorizontalBorderSize()
+}
+
+func (r *FlexBox) getExtraHeight() int {
+	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
 }

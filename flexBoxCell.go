@@ -77,12 +77,32 @@ func (r *FlexBoxCell) GetStyle() lipgloss.Style {
 
 // GetWidth returns real width of the cell
 func (r *FlexBoxCell) GetWidth() int {
-	return r.width - r.getExtraWidth()
+	return r.getMaxWidth()
 }
 
 // GetHeight returns real height of the cell
 func (r *FlexBoxCell) GetHeight() int {
-	return r.height - r.getExtraHeight()
+	return r.getMaxHeight()
+}
+
+// render the cell into string
+func (r *FlexBoxCell) render(inherited ...lipgloss.Style) string {
+	for _, style := range inherited {
+		r.style = r.style.Inherit(style)
+	}
+
+	s := r.GetStyle().
+		Width(r.getContentWidth()).MaxWidth(r.getMaxWidth()).
+		Height(r.getContentHeight()).MaxHeight(r.getMaxHeight())
+	return s.Render(r.content)
+}
+
+func (r *FlexBoxCell) getContentWidth() int {
+	return r.getMaxWidth() - r.getExtraWidth()
+}
+
+func (r *FlexBoxCell) getContentHeight() int {
+	return r.getMaxHeight() - r.getExtraHeight()
 }
 
 func (r *FlexBoxCell) getMaxWidth() int {
@@ -99,14 +119,4 @@ func (r *FlexBoxCell) getExtraWidth() int {
 
 func (r *FlexBoxCell) getExtraHeight() int {
 	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
-}
-
-// render the cell into string
-func (r *FlexBoxCell) render(rowStyle lipgloss.Style) string {
-	s := r.GetStyle().
-		Inherit(rowStyle).
-		Width(r.GetWidth()).MaxWidth(r.getMaxWidth()).
-		Height(r.GetHeight()).MaxHeight(r.getMaxHeight())
-
-	return s.Render(r.content)
 }
