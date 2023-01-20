@@ -131,6 +131,8 @@ type Table struct {
 	rowHeight int
 
 	styles map[TableStyleKey]lipgloss.Style
+	// stylePassing if true, styles are passed all the way down from box to cell
+	stylePassing bool
 
 	headerBox *FlexBox
 	rowsBox   *FlexBox
@@ -182,7 +184,8 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		headerBox: NewFlexBox(width, 1).SetStyle(tableDefaultHeaderStyle),
 		rowsBox:   NewFlexBox(width, height-1),
 
-		styles: styles,
+		styles:       styles,
+		stylePassing: false,
 	}
 	r.setHeadersUpdate()
 	return r
@@ -265,6 +268,16 @@ func (r *Table) SetStyles(styles map[TableStyleKey]lipgloss.Style) *Table {
 		mergedStyles[key] = style
 	}
 	r.styles = mergedStyles
+	r.setRowsUpdate()
+	r.setHeadersUpdate()
+	return r
+}
+
+// SetStylePassing sets the style passing flag, if true, styles are passed all the way down from box to cell
+func (r *Table) SetStylePassing(value bool) *Table {
+	r.stylePassing = value
+	r.headerBox.StylePassing(value)
+	r.rowsBox.StylePassing(value)
 	r.setRowsUpdate()
 	r.setHeadersUpdate()
 	return r
@@ -537,7 +550,7 @@ func (r *Table) updateHeader() *Table {
 	}
 	r.headerBox.SetRows(
 		[]*FlexBoxRow{
-			r.headerBox.NewRow().AddCells(cells),
+			r.headerBox.NewRow().StylePassing(r.stylePassing).AddCells(cells),
 		},
 	)
 	r.unsetHeadersUpdate()
@@ -581,7 +594,7 @@ func (r *Table) updateRows() {
 			cells = append(cells, c)
 		}
 		// initialize new row from the rows box and add generated cells
-		rw := r.rowsBox.NewRow().AddCells(cells)
+		rw := r.rowsBox.NewRow().StylePassing(r.stylePassing).AddCells(cells)
 
 		// rows have three styles, normal, subsequent and selected
 		// normal and subsequent rows should differ for readability
