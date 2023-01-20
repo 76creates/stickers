@@ -12,6 +12,7 @@ type FlexBoxCell struct {
 	// id of the cell, if not set it will default to the index in the row
 	id string
 
+	// TODO: all ratios and sizes should be uint
 	// ratioX width ratio of the cell
 	ratioX int
 	// ratioY height ratio of the cell
