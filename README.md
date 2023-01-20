@@ -17,7 +17,7 @@ Tabel viewer with ability to get the content of the cell over which the cursor i
 - sorting ✅
 
 ## Known issues
-Table selected cell is not rendering background color correctly, will be fixed with https://github.com/charmbracelet/lipgloss/pull/69 
+~~Table selected cell is not rendering background color correctly, will be fixed with https://github.com/charmbracelet/lipgloss/pull/69~~ 
 
 ***
 Made with [Charm](https://charm.sh).

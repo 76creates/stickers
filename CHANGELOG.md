@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [v1.4] (draft)
+### Dependencies
+- Updated `github.com/charmbracelet/lipgloss` to `v0.6.0'
 
 ## [v1.3](https://github.com/76creates/stickers/compare/v1.2...v1.3) (2022-12-28)
 ### Fixes
