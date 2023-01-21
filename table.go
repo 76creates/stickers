@@ -504,10 +504,13 @@ func (r *Table) updateHeader() *Table {
 		// filtering symbol should be visible always, if possible of course, and as far right as possible
 		// there should be a minimum of space bar between two symbols and symbol and row to the right
 		var titleSuffix string
-		_h, e := r.headerBox.GetRow(0)
+		_h := r.headerBox.GetRow(0)
 		// skip the case when we initialize table
-		if e {
-			_c := _h.MustGetCellWithIndex(i)
+		if _h != nil {
+			_c := _h.GetCellCopy(i)
+			if _c == nil {
+				panic("cell with index " + string(i) + " is nil")
+			}
 			_w := _c.GetWidth()
 
 			// add sorting symbol if the sorting is active on the column

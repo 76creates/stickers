@@ -42,39 +42,39 @@ func (r *FlexBoxRow) CellsLen() int {
 	return len(r.cells)
 }
 
-// Cell returns the FlexBoxCell on the given index if it exists
+// GetCell returns the FlexBoxCell on the given index if it exists
 // note: forces the recalculation if found
-func (r *FlexBoxRow) Cell(index int) *FlexBoxCell {
-	if index >= 0 && len(r.cells) > 0 && index < len(r.cells) {
+//		 returns nil if not found
+func (r *FlexBoxRow) GetCell(index int) *FlexBoxCell {
+	if index >= 0 && index < len(r.cells) {
 		r.setRecalculate()
 		return r.cells[index]
 	}
 	return nil
 }
 
+// GetCellCopy returns a copy of the FlexBoxCell on the given index, if cell
+// does not exist it will return nil. This is useful when you need to get
+// cells attribute without triggering a recalculation.
+func (r *FlexBoxRow) GetCellCopy(index int) *FlexBoxCell {
+	if index >= 0 && index < len(r.cells) {
+		c := r.cells[index].copy()
+		return &c
+	}
+	return nil
+}
+
 // GetCellWithID returns the cell with the given ID if existing
-func (r *FlexBoxRow) GetCellWithID(id string) (cell FlexBoxCell, exists bool) {
+// note: forces the recalculation if found
+//		 returns nil if not found
+func (r *FlexBoxRow) GetCellWithID(id string) *FlexBoxCell {
 	for _, c := range r.cells {
 		if c.id == id {
-			return *c, true
+			r.setRecalculate()
+			return c
 		}
 	}
-	return FlexBoxCell{}, false
-}
-
-// GetCellWithIndex returns the cell with the given index if existing
-// note: it does not return a pointer
-func (r *FlexBoxRow) GetCellWithIndex(index int) (cell FlexBoxCell, exists bool) {
-	if index >= 0 && len(r.cells) > 0 && index < len(r.cells) {
-		return *r.cells[index], true
-	}
-	return FlexBoxCell{}, false
-}
-
-// MustGetCellWithIndex returns the cell with the given index if existing, panic if not
-// note: it does not return a pointer
-func (r *FlexBoxRow) MustGetCellWithIndex(index int) FlexBoxCell {
-	return *r.cells[index]
+	return nil
 }
 
 // UpdateCellWithIndex replaces the cell on the given index if it exists
@@ -99,7 +99,7 @@ func (r *FlexBoxRow) SetStyle(style lipgloss.Style) *FlexBoxRow {
 
 // StylePassing set whether the style should be passed to the cells
 func (r *FlexBoxRow) StylePassing(value bool) *FlexBoxRow {
-	r.styleAncestor = true
+	r.styleAncestor = value
 	return r
 }
 
@@ -233,4 +233,17 @@ func (r *FlexBoxRow) getExtraWidth() int {
 
 func (r *FlexBoxRow) getExtraHeight() int {
 	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
+}
+
+func (r *FlexBoxRow) copy() FlexBoxRow {
+	var cells []*FlexBoxCell
+	for _, cell := range r.cells {
+		cellCopy := cell.copy()
+		cells = append(cells, &cellCopy)
+	}
+	rowCopy := *r
+	rowCopy.cells = cells
+	rowCopy.style = r.style.Copy()
+
+	return rowCopy
 }

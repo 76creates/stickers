@@ -3,21 +3,27 @@
 All notable changes to this project will be documented in this file.
 
 ## [v1.4] (draft)
+### Fixes
+- Minor lexical fixes
 ### Dependencies
 - Updated `github.com/charmbracelet/lipgloss` to `v0.6.0'
+### Features
+- Added `SetStylePassing` to _Table_ that will pass down the style all the way, from box to cell. No granularity for now.
+### Updates
+- Refactored `FlexBox.GetRow`, `FlexBox.Row`, `FlexBox.MustGetRow`, `FlexBoxRow.Cell`, `FlexBoxRow.GetCellWithID`, `FlexBoxRow.MustGetCellWithIndex`.<br>They are replaced with `FlexBoxRow.GetCell`, `FlexBoxRow.GetCellCopy`, `FlexBox.GetRow`, `FlexBox.GetRowCopy`,`FlexBox.GetRowCellCopy`.<br>Get* now returns pointer and triggers _recalculation_, while one can use Copy* function to get pointer to copied structs which can be used to lookup values without triggering _recalculation_. 
 
 ## [v1.3](https://github.com/76creates/stickers/compare/v1.2...v1.3) (2022-12-28)
 ### Fixes
 * Fixed cursor not moving to the last visible row when filtering
 * Fixed margins and borders not being rendered correctly #8
-* Additionally fixed margin and border issues on box
+* Additionally, fixed margin and border issues on box
 * Allow style override on _Table_ @joejag
 ### Features
 * Converted default cell inheritance of the row style to function `StylePassing` which can be set on the _Box_ and _Row_, if both box and row have style passing enabled, the row will inherit the box style before it passes style to the cells.
 
 ## [v1.2](https://github.com/76creates/stickers/compare/v1.1...v1.2) (2022-02-27)
 ### Features
-* Filterin is now availible for `Table` and `TableSingleType` using new methods:
+* Filtering is now available for `Table` and `TableSingleType` using new methods:
     * `UnsetFilter` remove filtering
     * `SetFilter` sets the filter on a column by index
     * `GetFilter` gets index of filtered column and the value of the filter
@@ -36,10 +42,10 @@ All notable changes to this project will be documented in this file.
 * Small lexical changes and tidying up
 
 ### Features
-* Sorting is now availible for `Table` and `TableSingleType`
+* Sorting is now available for `Table` and `TableSingleType`
 * `Table` has been reformatted and now supports **sorting by type**, when `Table` is initialized each colum type is set to `string`, you can now update that using `SetType` method, types supported are located in interface `Ordered`
-* Added `TableSingleType` type which locks row type to `string`, this makes it easier for user when adding rows as there is much less errors that can occurr as when using `Table` where all depends on a type
-* Added method `OrderByColumn` which envokes sorting for column `n`, for now you cannot explicitly set sorting direction and its switching between `asc` and `desc` when you sort same column 
-* Added method `GetCursorLocation` which returns `x`,`y` of the curent cursor location on the table
+* Added `TableSingleType` type which locks row type to `string`, this makes it easier for user when adding rows as there is much fewer errors that can occur as when using `Table` where all depends on a type
+* Added method `OrderByColumn` which invokes sorting for column `n`, for now you cannot explicitly set sorting direction and it's switching between `asc` and `desc` when you sort same column 
+* Added method `GetCursorLocation` which returns `x`,`y` of the current cursor location on the table
 * Added error types `TableBadTypeError`, `TableRowLenError`, `TableBadCellTypeError`
-* Minor preformace enhancements
+* Minor performance enhancements

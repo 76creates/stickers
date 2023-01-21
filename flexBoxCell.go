@@ -121,3 +121,9 @@ func (r *FlexBoxCell) getExtraWidth() int {
 func (r *FlexBoxCell) getExtraHeight() int {
 	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
 }
+
+func (r *FlexBoxCell) copy() FlexBoxCell {
+	cellCopy := *r
+	cellCopy.style = r.GetStyle()
+	return cellCopy
+}

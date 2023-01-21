@@ -43,6 +43,7 @@ func main() {
 		infoBox: stickers.NewFlexBox(0, 0).SetHeight(7),
 		headers: headers,
 	}
+	m.table.SetStylePassing(true)
 	// setup
 	m.table.SetRatio(ratio).SetMinWidth(minSize)
 	// add rows
@@ -100,7 +101,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.OrderByColumn(x)
 		case "enter", " ":
 			selectedValue = m.table.GetCursorValue()
-			m.infoBox.Row(0).Cell(1).SetContent("\nselected cell: " + selectedValue)
+			m.infoBox.GetRow(0).GetCell(1).SetContent("\nselected cell: " + selectedValue)
 		case "backspace":
 			m.filterWithStr(msg.String())
 		default:

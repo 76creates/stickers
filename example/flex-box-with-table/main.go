@@ -61,7 +61,7 @@ func main() {
 	}
 
 	m.table.SetRatio(ratio).SetMinWidth(minSize)
-	m.table.AddRows(rows)
+	m.table.AddRows(rows).SetStylePassing(true)
 
 	r1 := m.flexBox.NewRow().AddCells(
 		[]*stickers.FlexBoxCell{
@@ -132,13 +132,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					continue
 				}
 				// not handling error for example script
-				for ic := 0; ic < m.flexBox.Row(ir).CellsLen(); ic++ {
+				for ic := 0; ic < m.flexBox.GetRow(ir).CellsLen(); ic++ {
 					// adding a bit of randomness for fun
 					if rand.Int()%2 == 0 {
-						h := int(math.Floor(float64(m.flexBox.Row(ir).Cell(ic).GetHeight()) / 2.0))
-						m.flexBox.Row(ir).Cell(ic).SetContent(strings.Repeat("\n", h) + cellString)
+						h := int(math.Floor(float64(m.flexBox.GetRowCellCopy(ir, ic).GetHeight()) / 2.0))
+						m.flexBox.GetRow(ir).GetCell(ic).SetContent(strings.Repeat("\n", h) + cellString)
 					} else {
-						m.flexBox.Row(ir).Cell(ic).SetContent("")
+						m.flexBox.GetRow(ir).GetCell(ic).SetContent("")
 					}
 				}
 			}
@@ -181,11 +181,11 @@ func (m *model) filterWithStr(key string) {
 
 func (m *model) View() string {
 	m.flexBox.ForceRecalculate()
-	_r := m.flexBox.Row(tableRowIndex)
+	_r := m.flexBox.GetRow(tableRowIndex)
 	if _r == nil {
 		panic("could not find the table row")
 	}
-	_c := _r.Cell(tableCellIndex)
+	_c := _r.GetCell(tableCellIndex)
 	if _c == nil {
 		panic("could not find the table cell")
 	}

@@ -46,7 +46,7 @@ func (r *FlexBox) SetStyle(style lipgloss.Style) *FlexBox {
 
 // StylePassing set whether the style should be passed to the rows
 func (r *FlexBox) StylePassing(value bool) *FlexBox {
-	r.styleAncestor = true
+	r.styleAncestor = value
 	return r
 }
 
@@ -79,28 +79,41 @@ func (r *FlexBox) RowsLen() int {
 	return len(r.rows)
 }
 
-// Row returns the FlexBoxRow on the given index if it exists
+// GetRow returns the FlexBoxRow on the given index if it exists
 // note: forces the recalculation if found
-func (r *FlexBox) Row(index int) *FlexBoxRow {
-	if index >= 0 && len(r.rows) > 0 && index < len(r.rows) {
+//		 returns nil if not found
+func (r *FlexBox) GetRow(index int) *FlexBoxRow {
+	if index >= 0 && index < len(r.rows) {
 		r.setRecalculate()
 		return r.rows[index]
 	}
 	return nil
 }
 
-// GetRow returns the FlexBoxRow on the given index if it exists
-// note: it does not return a pointer
-func (r *FlexBox) GetRow(index int) (row FlexBoxRow, exists bool) {
-	if index >= 0 && len(r.rows) > 0 && index < len(r.rows) {
-		return *r.rows[index], true
+// GetRowCopy returns a copy of the FlexBoxRow on the given index, if row
+// does not exist it will return nil. Copied row also gets copies of the
+// cells. This is useful when you need to get rows attribute without
+// triggering a recalculation.
+func (r *FlexBox) GetRowCopy(index int) *FlexBoxRow {
+	if index >= 0 && index < len(r.rows) {
+		rowCopy := r.rows[index].copy()
+		return &rowCopy
 	}
-	return FlexBoxRow{}, false
+	return nil
 }
 
-// MustGetRow same as GetRow only panics if row does not exist
-func (r *FlexBox) MustGetRow(index int) FlexBoxRow {
-	return *r.rows[index]
+// GetRowCellCopy returns a copy of the FlexBoxCell on the given index x,
+// within the given row with index y, if row or cell do not exist it will
+// return nil. This is useful when you need to get rows attribute without
+// triggering a recalculation.
+func (r *FlexBox) GetRowCellCopy(rowIndex, cellIndex int) *FlexBoxCell {
+	if rowIndex >= 0 && rowIndex < len(r.rows) {
+		if cellIndex >= 0 && cellIndex < len(r.rows[rowIndex].cells) {
+			cellCopy := r.rows[rowIndex].cells[cellIndex].copy()
+			return &cellCopy
+		}
+	}
+	return nil
 }
 
 // UpdateRow replaces the FlexBoxRow on the given index

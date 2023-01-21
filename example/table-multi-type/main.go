@@ -59,6 +59,8 @@ func main() {
 	}
 	// setup dimensions
 	m.table.SetRatio(ratio).SetMinWidth(minSize)
+	// set style passing
+	m.table.SetStylePassing(true)
 	// add rows
 	// with multi type table we have to convert our rows to []any first which is a bit of a pain
 	var orderedRows [][]any
@@ -121,7 +123,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.OrderByColumn(x)
 		case "enter", " ":
 			selectedValue = m.table.GetCursorValue()
-			m.infoBox.Row(0).Cell(1).SetContent("\nselected cell: " + selectedValue)
+			m.infoBox.GetRow(0).GetCell(1).SetContent("\nselected cell: " + selectedValue)
 		case "backspace":
 			m.filterWithStr(msg.String())
 		default:
