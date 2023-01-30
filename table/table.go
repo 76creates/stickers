@@ -1,4 +1,4 @@
-package stickers
+package table
 
 import (
 	"errors"
@@ -147,7 +147,7 @@ type Table struct {
 // NewTable initialize Table object with defaults
 func NewTable(width, height int, columnHeaders []string) *Table {
 	var columnRatio, columnMinWidth []int
-	for _ = range columnHeaders {
+	for range columnHeaders {
 		columnRatio = append(columnRatio, 1)
 		columnMinWidth = append(columnMinWidth, 0)
 	}
@@ -511,7 +511,7 @@ func (r *Table) updateHeader() *Table {
 		if _h != nil {
 			_c := _h.GetCellCopy(i)
 			if _c == nil {
-				panic("cell with index " + string(i) + " is nil")
+				panic("cell with index " + strconv.Itoa(i) + " is nil")
 			}
 			_w := _c.GetWidth()
 
