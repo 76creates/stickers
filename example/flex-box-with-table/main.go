@@ -10,6 +10,7 @@ import (
 	"unicode"
 
 	"github.com/76creates/stickers"
+	"github.com/76creates/stickers/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -31,7 +32,7 @@ var (
 
 type model struct {
 	flexBox *stickers.FlexBox
-	table   *stickers.TableSingleType[string]
+	table   *table.TableSingleType[string]
 	headers []string
 }
 
@@ -56,7 +57,7 @@ func main() {
 
 	m := model{
 		flexBox: stickers.NewFlexBox(0, 0).SetStyle(styleBackground),
-		table:   stickers.NewTableSingleType[string](0, 0, headers),
+		table:   table.NewTableSingleType[string](0, 0, headers),
 		headers: headers,
 	}
 

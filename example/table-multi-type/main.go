@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"unicode"
+
 	"github.com/76creates/stickers"
+	"github.com/76creates/stickers/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gocarina/gocsv"
-	"os"
-	"unicode"
 )
 
 var selectedValue string = "\nselect something with spacebar or enter"
 
 type model struct {
-	table   *stickers.Table
+	table   *table.Table
 	infoBox *stickers.FlexBox
 	headers []string
 }
@@ -48,7 +50,7 @@ func main() {
 	types := []any{i, s, s, i, s}
 
 	m := model{
-		table:   stickers.NewTable(0, 0, headers),
+		table:   table.NewTable(0, 0, headers),
 		infoBox: stickers.NewFlexBox(0, 0).SetHeight(7),
 		headers: headers,
 	}

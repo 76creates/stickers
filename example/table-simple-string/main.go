@@ -3,18 +3,20 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/76creates/stickers"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"log"
 	"os"
 	"unicode"
+
+	"github.com/76creates/stickers"
+	"github.com/76creates/stickers/table"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var selectedValue string = "\nselect something with spacebar or enter"
 
 type model struct {
-	table   *stickers.TableSingleType[string]
+	table   *table.TableSingleType[string]
 	infoBox *stickers.FlexBox
 	headers []string
 }
@@ -39,7 +41,7 @@ func main() {
 	minSize := []int{4, 5, 5, 2, 5}
 
 	m := model{
-		table:   stickers.NewTableSingleType[string](0, 0, headers),
+		table:   table.NewTableSingleType[string](0, 0, headers),
 		infoBox: stickers.NewFlexBox(0, 0).SetHeight(7),
 		headers: headers,
 	}

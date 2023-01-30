@@ -1,4 +1,4 @@
-package stickers
+package table
 
 // TableSingleType is Table that is using only 1 type for rows allowing for easier AddRows with fewer errors
 type TableSingleType[T Ordered] struct {

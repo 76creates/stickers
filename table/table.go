@@ -3,13 +3,15 @@ package stickers
 import (
 	"errors"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
 	"log"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/76creates/stickers"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
@@ -134,8 +136,8 @@ type Table struct {
 	// stylePassing if true, styles are passed all the way down from box to cell
 	stylePassing bool
 
-	headerBox *FlexBox
-	rowsBox   *FlexBox
+	headerBox *stickers.FlexBox
+	rowsBox   *stickers.FlexBox
 
 	// these flags indicate weather we should update rows and headers flex boxes
 	updateRowsFlag    bool
@@ -181,8 +183,8 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		rowsTopIndex: 0,
 		rowHeight:    1,
 
-		headerBox: NewFlexBox(width, 1).SetStyle(tableDefaultHeaderStyle),
-		rowsBox:   NewFlexBox(width, height-1),
+		headerBox: stickers.NewFlexBox(width, 1).SetStyle(tableDefaultHeaderStyle),
+		rowsBox:   stickers.NewFlexBox(width, height-1),
 
 		styles:       styles,
 		stylePassing: false,
@@ -497,7 +499,7 @@ func (r *Table) updateHeader() *Table {
 	if !r.updateHeadersFlag {
 		return r
 	}
-	var cells []*FlexBoxCell
+	var cells []*stickers.FlexBoxCell
 	r.headerBox.SetStyle(r.styles[TableHeaderStyleKey])
 	for i, title := range r.columnHeaders {
 		// titleSuffix at the moment can be sort and filter characters
@@ -548,11 +550,11 @@ func (r *Table) updateHeader() *Table {
 		}
 		cells = append(
 			cells,
-			NewFlexBoxCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title+titleSuffix),
+			stickers.NewFlexBoxCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title+titleSuffix),
 		)
 	}
 	r.headerBox.SetRows(
-		[]*FlexBoxRow{
+		[]*stickers.FlexBoxRow{
 			r.headerBox.NewRow().StylePassing(r.stylePassing).AddCells(cells),
 		},
 	)
@@ -579,15 +581,15 @@ func (r *Table) updateRows() {
 		rowsBottomIndex = len(r.filteredRows)
 	}
 
-	var rows []*FlexBoxRow
+	var rows []*stickers.FlexBoxRow
 	for ir, columns := range r.filteredRows[r.rowsTopIndex:rowsBottomIndex] {
 		// irCorrected is corrected row index since we iterate only visible rows
 		irCorrected := ir + r.rowsTopIndex
 
-		var cells []*FlexBoxCell
+		var cells []*stickers.FlexBoxCell
 		for ic, column := range columns {
 			// initialize column cell
-			c := NewFlexBoxCell(r.columnRatio[ic], r.rowHeight).
+			c := stickers.NewFlexBoxCell(r.columnRatio[ic], r.rowHeight).
 				SetMinWidth(r.columnMinWidth[ic]).
 				SetContent(getStringFromOrdered(column))
 			// update style if cursor is on the cell, otherwise it's inherited from the row
