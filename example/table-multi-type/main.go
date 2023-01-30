@@ -82,7 +82,7 @@ enter, spacebar: get column value
 ctrl+c: quit
 `
 	r1 := m.infoBox.NewRow()
-	r1.AddCells([]*stickers.FlexBoxCell{
+	r1.AddCells(
 		stickers.NewFlexBoxCell(1, 1).
 			SetID("info").
 			SetContent(infoText),
@@ -90,7 +90,7 @@ ctrl+c: quit
 			SetID("info").
 			SetContent(selectedValue).
 			SetStyle(lipgloss.NewStyle().Bold(true)),
-	})
+	)
 	m.infoBox.AddRows([]*stickers.FlexBoxRow{r1})
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())

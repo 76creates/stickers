@@ -555,7 +555,7 @@ func (r *Table) updateHeader() *Table {
 	}
 	r.headerBox.SetRows(
 		[]*stickers.FlexBoxRow{
-			r.headerBox.NewRow().StylePassing(r.stylePassing).AddCells(cells),
+			r.headerBox.NewRow().StylePassing(r.stylePassing).AddCells(cells...),
 		},
 	)
 	r.unsetHeadersUpdate()
@@ -599,7 +599,7 @@ func (r *Table) updateRows() {
 			cells = append(cells, c)
 		}
 		// initialize new row from the rows box and add generated cells
-		rw := r.rowsBox.NewRow().StylePassing(r.stylePassing).AddCells(cells)
+		rw := r.rowsBox.NewRow().StylePassing(r.stylePassing).AddCells(cells...)
 
 		// rows have three styles, normal, subsequent and selected
 		// normal and subsequent rows should differ for readability

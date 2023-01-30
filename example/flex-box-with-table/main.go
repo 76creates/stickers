@@ -65,27 +65,21 @@ func main() {
 	m.table.AddRows(rows).SetStylePassing(true)
 
 	r1 := m.flexBox.NewRow().AddCells(
-		[]*stickers.FlexBoxCell{
-			stickers.NewFlexBoxCell(5, 5).SetStyle(style2),
-			stickers.NewFlexBoxCell(2, 5).SetStyle(style3),
-			stickers.NewFlexBoxCell(5, 5).SetStyle(style5),
-		},
+		stickers.NewFlexBoxCell(5, 5).SetStyle(style2),
+		stickers.NewFlexBoxCell(2, 5).SetStyle(style3),
+		stickers.NewFlexBoxCell(5, 5).SetStyle(style5),
 	).SetStyle(styleRow)
 	r2 := m.flexBox.NewRow().AddCells(
-		[]*stickers.FlexBoxCell{
-			stickers.NewFlexBoxCell(1, 5).SetStyle(style6),
-			stickers.NewFlexBoxCell(10, 5).SetStyle(styleBlank),
-			stickers.NewFlexBoxCell(1, 5).SetStyle(style6),
-		},
+		stickers.NewFlexBoxCell(1, 5).SetStyle(style6),
+		stickers.NewFlexBoxCell(10, 5).SetStyle(styleBlank),
+		stickers.NewFlexBoxCell(1, 5).SetStyle(style6),
 	).SetStyle(styleRow)
 	r3 := m.flexBox.NewRow().AddCells(
-		[]*stickers.FlexBoxCell{
-			stickers.NewFlexBoxCell(1, 5).SetStyle(style5),
-			stickers.NewFlexBoxCell(1, 4).SetStyle(style4),
-			stickers.NewFlexBoxCell(1, 3).SetStyle(style3),
-			stickers.NewFlexBoxCell(1, 4).SetStyle(style2),
-			stickers.NewFlexBoxCell(1, 5).SetStyle(style1),
-		},
+		stickers.NewFlexBoxCell(1, 5).SetStyle(style5),
+		stickers.NewFlexBoxCell(1, 4).SetStyle(style4),
+		stickers.NewFlexBoxCell(1, 3).SetStyle(style3),
+		stickers.NewFlexBoxCell(1, 4).SetStyle(style2),
+		stickers.NewFlexBoxCell(1, 5).SetStyle(style1),
 	).SetStyle(styleRow)
 
 	_rows := []*stickers.FlexBoxRow{r1, r2, r3}

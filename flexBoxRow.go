@@ -26,7 +26,7 @@ type FlexBoxRow struct {
 
 // AddCells appends the cells to the row
 // if the cell ID is not set it will default to the index of the cell
-func (r *FlexBoxRow) AddCells(cells []*FlexBoxCell) *FlexBoxRow {
+func (r *FlexBoxRow) AddCells(cells ...*FlexBoxCell) *FlexBoxRow {
 	r.cells = append(r.cells, cells...)
 	for i, cell := range r.cells {
 		if cell.id == "" {
@@ -44,7 +44,8 @@ func (r *FlexBoxRow) CellsLen() int {
 
 // GetCell returns the FlexBoxCell on the given index if it exists
 // note: forces the recalculation if found
-//		 returns nil if not found
+//
+//	returns nil if not found
 func (r *FlexBoxRow) GetCell(index int) *FlexBoxCell {
 	if index >= 0 && index < len(r.cells) {
 		r.setRecalculate()
@@ -66,7 +67,8 @@ func (r *FlexBoxRow) GetCellCopy(index int) *FlexBoxCell {
 
 // GetCellWithID returns the cell with the given ID if existing
 // note: forces the recalculation if found
-//		 returns nil if not found
+//
+//	returns nil if not found
 func (r *FlexBoxRow) GetCellWithID(id string) *FlexBoxCell {
 	for _, c := range r.cells {
 		if c.id == id {
