@@ -4,8 +4,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// FlexBoxCell is a building block object of the FlexBox, it represents a single cell within a box
-// cells are stacked horizontally
+// Cell is a building block object of the FlexBox, it represents a single cell within a box
+// A FlexBox stacks cells horizonally.
+// A HorizontalFlexBox stacks cells vertically. (controverse, isn't it?)
 type Cell struct {
 	// style of the cell, when rendering it will inherit the style of the parent row
 	style lipgloss.Style
@@ -19,7 +20,8 @@ type Cell struct {
 	ratioY int
 	// minWidth minimal width of the cell
 	minWidth int
-	// TODO: implement minimal height
+	// minHeigth minimal heigth of the cell
+	minHeigth int
 
 	width   int
 	height  int
@@ -55,9 +57,17 @@ func (r *Cell) GetContent() string {
 	return r.content
 }
 
-// SetMinWidth sets the cells minimum width, this will not disable responsivness
+// SetMinWidth sets the cells minimum width, this will not disable responsivness.
+// This has only an effect to cells of a normal FlexBox, not a HorizontalFlexBox.
 func (r *Cell) SetMinWidth(value int) *Cell {
 	r.minWidth = value
+	return r
+}
+
+// SetMinHeigth sets the cells minimum height, this will not disable responsivness.
+// This has only an effect to cells of a HorizontalFlexBox.
+func (r *Cell) SetMinHeigth(value int) *Cell {
+	r.minHeigth = value
 	return r
 }
 

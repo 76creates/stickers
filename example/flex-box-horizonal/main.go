@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/76creates/stickers/horizontal"
+	"github.com/76creates/stickers/flexbox"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -33,26 +33,26 @@ var (
 )
 
 type model struct {
-	flexBox *horizontal.HorizontalFlexBox
+	flexBox *flexbox.HorizontalFlexBox
 }
 
 func main() {
 	m := model{
-		flexBox: horizontal.NewHorizontalFlexBox(0, 0),
+		flexBox: flexbox.NewHorizontal(0, 0),
 	}
 
-	columns := []*horizontal.FlexBoxColumn{
+	columns := []*flexbox.Column{
 		m.flexBox.NewColumn().AddCells(
-			horizontal.NewFlexBoxCell(1, 1).SetStyle(style1),
-			horizontal.NewFlexBoxCell(1, 1).SetStyle(style2),
+			flexbox.NewCell(1, 1).SetStyle(style1),
+			flexbox.NewCell(1, 1).SetStyle(style2),
 		),
 		m.flexBox.NewColumn().AddCells(
-			horizontal.NewFlexBoxCell(2, 1).SetStyle(style3),
+			flexbox.NewCell(2, 1).SetStyle(style3),
 		),
 		m.flexBox.NewColumn().AddCells(
-			horizontal.NewFlexBoxCell(1, 1).SetStyle(style4),
-			horizontal.NewFlexBoxCell(1, 2).SetStyle(style5),
-			horizontal.NewFlexBoxCell(1, 1).SetStyle(style6),
+			flexbox.NewCell(1, 1).SetStyle(style4),
+			flexbox.NewCell(1, 2).SetStyle(style5),
+			flexbox.NewCell(1, 1).SetStyle(style6),
 		),
 	}
 
