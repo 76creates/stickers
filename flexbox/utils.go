@@ -1,4 +1,4 @@
-package stickers
+package flexbox
 
 import (
 	"math"

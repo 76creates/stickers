@@ -5,7 +5,7 @@ import (
 	"os"
 	"unicode"
 
-	"github.com/76creates/stickers"
+	"github.com/76creates/stickers/flexbox"
 	"github.com/76creates/stickers/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,7 +16,7 @@ var selectedValue string = "\nselect something with spacebar or enter"
 
 type model struct {
 	table   *table.Table
-	infoBox *stickers.FlexBox
+	infoBox *flexbox.FlexBox
 	headers []string
 }
 
@@ -51,7 +51,7 @@ func main() {
 
 	m := model{
 		table:   table.NewTable(0, 0, headers),
-		infoBox: stickers.NewFlexBox(0, 0).SetHeight(7),
+		infoBox: flexbox.New(0, 0).SetHeight(7),
 		headers: headers,
 	}
 	// set types
@@ -83,15 +83,15 @@ ctrl+c: quit
 `
 	r1 := m.infoBox.NewRow()
 	r1.AddCells(
-		stickers.NewFlexBoxCell(1, 1).
+		flexbox.NewCell(1, 1).
 			SetID("info").
 			SetContent(infoText),
-		stickers.NewFlexBoxCell(1, 1).
+		flexbox.NewCell(1, 1).
 			SetID("info").
 			SetContent(selectedValue).
 			SetStyle(lipgloss.NewStyle().Bold(true)),
 	)
-	m.infoBox.AddRows([]*stickers.FlexBoxRow{r1})
+	m.infoBox.AddRows([]*flexbox.Row{r1})
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())
 	if err := p.Start(); err != nil {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/76creates/stickers"
+	"github.com/76creates/stickers/flexbox"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -33,42 +33,42 @@ var (
 )
 
 type model struct {
-	flexBox *stickers.FlexBox
+	flexBox *flexbox.FlexBox
 }
 
 func main() {
 	m := model{
-		flexBox: stickers.NewFlexBox(0, 0),
+		flexBox: flexbox.New(0, 0),
 	}
 
-	rows := []*stickers.FlexBoxRow{
+	rows := []*flexbox.Row{
 		m.flexBox.NewRow().AddCells(
-			stickers.NewFlexBoxCell(1, 6).SetStyle(style1),
-			stickers.NewFlexBoxCell(1, 6).SetStyle(style2),
-			stickers.NewFlexBoxCell(1, 6).SetStyle(style3),
+			flexbox.NewCell(1, 6).SetStyle(style1),
+			flexbox.NewCell(1, 6).SetStyle(style2),
+			flexbox.NewCell(1, 6).SetStyle(style3),
 		),
 		m.flexBox.NewRow().AddCells(
-			stickers.NewFlexBoxCell(2, 4).SetStyle(style4),
-			stickers.NewFlexBoxCell(2, 4).SetStyle(style5),
-			stickers.NewFlexBoxCell(3, 4).SetStyle(style6),
-			stickers.NewFlexBoxCell(3, 4).SetStyle(style7),
-			stickers.NewFlexBoxCell(3, 4).SetStyle(style8),
-			stickers.NewFlexBoxCell(4, 4).SetStyle(style9),
-			stickers.NewFlexBoxCell(4, 4).SetStyle(style10),
+			flexbox.NewCell(2, 4).SetStyle(style4),
+			flexbox.NewCell(2, 4).SetStyle(style5),
+			flexbox.NewCell(3, 4).SetStyle(style6),
+			flexbox.NewCell(3, 4).SetStyle(style7),
+			flexbox.NewCell(3, 4).SetStyle(style8),
+			flexbox.NewCell(4, 4).SetStyle(style9),
+			flexbox.NewCell(4, 4).SetStyle(style10),
 		),
 		m.flexBox.NewRow().AddCells(
-			stickers.NewFlexBoxCell(2, 5).SetStyle(style11),
-			stickers.NewFlexBoxCell(3, 5).SetStyle(style12),
-			stickers.NewFlexBoxCell(10, 5).SetStyle(style13),
-			stickers.NewFlexBoxCell(3, 5).SetStyle(style14),
-			stickers.NewFlexBoxCell(2, 5).SetStyle(style15),
+			flexbox.NewCell(2, 5).SetStyle(style11),
+			flexbox.NewCell(3, 5).SetStyle(style12),
+			flexbox.NewCell(10, 5).SetStyle(style13),
+			flexbox.NewCell(3, 5).SetStyle(style14),
+			flexbox.NewCell(2, 5).SetStyle(style15),
 		),
 		m.flexBox.NewRow().AddCells(
-			stickers.NewFlexBoxCell(1, 4).SetStyle(style16),
-			stickers.NewFlexBoxCell(1, 3).SetStyle(style17),
-			stickers.NewFlexBoxCell(1, 2).SetStyle(style18),
-			stickers.NewFlexBoxCell(1, 3).SetStyle(style19),
-			stickers.NewFlexBoxCell(1, 4).SetStyle(style20),
+			flexbox.NewCell(1, 4).SetStyle(style16),
+			flexbox.NewCell(1, 3).SetStyle(style17),
+			flexbox.NewCell(1, 2).SetStyle(style18),
+			flexbox.NewCell(1, 3).SetStyle(style19),
+			flexbox.NewCell(1, 4).SetStyle(style20),
 		),
 	}
 

@@ -33,12 +33,12 @@ var (
 )
 
 type model struct {
-	flexBox *horizontal.FlexBox
+	flexBox *horizontal.HorizontalFlexBox
 }
 
 func main() {
 	m := model{
-		flexBox: horizontal.NewFlexBox(0, 0),
+		flexBox: horizontal.NewHorizontalFlexBox(0, 0),
 	}
 
 	columns := []*horizontal.FlexBoxColumn{
