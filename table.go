@@ -391,6 +391,13 @@ func (r *Table) MustAddRows(rows [][]any) *Table {
 	return r
 }
 
+// ClearRows removes all previously added rows, can be used as part of an update loop
+func (r *Table) ClearRows() *Table {
+	r.rows = make([][]any, 0, 10)
+	r.setRowsUpdate()
+	return r
+}
+
 // OrderByColumn orders rows by a column with the index n, simple bubble sort, nothing too fancy
 // does not apply when there is less than 2 row in a table
 // TODO: this messes up numbering that one might use, implement automatic indexing of rows
@@ -399,24 +406,56 @@ func (r *Table) OrderByColumn(index int) *Table {
 	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
 	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
 		r.updateOrderedVars(index)
-
-		// sorted rows
-		var sorted [][]any
-		// list of column values used for ordering
-		var orderingCol []any
-		for _, rw := range r.rows {
-			orderingCol = append(orderingCol, rw[index])
-		}
-		// get sorting index
-		sortingIndex := sortIndexByOrderedColumn(orderingCol, r.orderedColumnPhase)
-		// update rows
-		for _, i := range sortingIndex {
-			sorted = append(sorted, r.rows[i])
-		}
-		r.rows = sorted
-		r.setRowsUpdate()
+		r.sortRows(index)
 	}
 	return r
+}
+
+// GetOrder returns the current order column index and phase (0 for asc, 1 for desc)
+func (r *Table) GetOrder() (int, int) {
+	return r.orderedColumnIndex, int(r.orderedColumnPhase)
+}
+
+// OrderByAsc orders rows by a column with index n, in ascending order
+func (r *Table) OrderByAsc(index int) *Table {
+	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
+	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
+		r.orderedColumnPhase = TableSortingAscending
+		r.sortRows(index)
+		r.orderedColumnIndex = index
+		r.setHeadersUpdate()
+	}
+	return r
+}
+
+// OrderByDesc orders rows by a column with index n, in descending order
+func (r *Table) OrderByDesc(index int) *Table {
+	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
+	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
+		r.orderedColumnPhase = TableSortingDescending
+		r.sortRows(index)
+		r.orderedColumnIndex = index
+		r.setHeadersUpdate()
+	}
+	return r
+}
+
+func (r *Table) sortRows(index int) {
+	// sorted rows
+	var sorted [][]any
+	// list of column values used for ordering
+	var orderingCol []any
+	for _, rw := range r.rows {
+		orderingCol = append(orderingCol, rw[index])
+	}
+	// get sorting index
+	sortingIndex := sortIndexByOrderedColumn(orderingCol, r.orderedColumnPhase)
+	// update rows
+	for _, i := range sortingIndex {
+		sorted = append(sorted, r.rows[i])
+	}
+	r.rows = sorted
+	r.setRowsUpdate()
 }
 
 // Render renders the table into the string
