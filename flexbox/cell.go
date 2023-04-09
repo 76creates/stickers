@@ -1,12 +1,13 @@
-package stickers
+package flexbox
 
 import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// FlexBoxCell is a building block object of the FlexBox, it represents a single cell within a box
-// cells are stacked horizontally
-type FlexBoxCell struct {
+// Cell is a building block object of the FlexBox, it represents a single cell within a box
+// A FlexBox stacks cells horizonally.
+// A HorizontalFlexBox stacks cells vertically. (controverse, isn't it?)
+type Cell struct {
 	// style of the cell, when rendering it will inherit the style of the parent row
 	style lipgloss.Style
 	// id of the cell, if not set it will default to the index in the row
@@ -19,16 +20,17 @@ type FlexBoxCell struct {
 	ratioY int
 	// minWidth minimal width of the cell
 	minWidth int
-	// TODO: implement minimal height
+	// minHeigth minimal heigth of the cell
+	minHeigth int
 
 	width   int
 	height  int
 	content string
 }
 
-// NewFlexBoxCell initialize FlexBoxCell object with defaults
-func NewFlexBoxCell(ratioX, ratioY int) *FlexBoxCell {
-	return &FlexBoxCell{
+// NewCell initialize FlexBoxCell object with defaults
+func NewCell(ratioX, ratioY int) *Cell {
+	return &Cell{
 		style:    lipgloss.NewStyle(),
 		ratioX:   ratioX,
 		ratioY:   ratioY,
@@ -39,30 +41,38 @@ func NewFlexBoxCell(ratioX, ratioY int) *FlexBoxCell {
 }
 
 // SetID sets the cells ID
-func (r *FlexBoxCell) SetID(id string) *FlexBoxCell {
+func (r *Cell) SetID(id string) *Cell {
 	r.id = id
 	return r
 }
 
 // SetContent sets the cells content
-func (r *FlexBoxCell) SetContent(content string) *FlexBoxCell {
+func (r *Cell) SetContent(content string) *Cell {
 	r.content = content
 	return r
 }
 
 // GetContent returns the cells raw content
-func (r *FlexBoxCell) GetContent() string {
+func (r *Cell) GetContent() string {
 	return r.content
 }
 
-// SetMinWidth sets the cells minimum width, this will not disable responsivness
-func (r *FlexBoxCell) SetMinWidth(value int) *FlexBoxCell {
+// SetMinWidth sets the cells minimum width, this will not disable responsivness.
+// This has only an effect to cells of a normal FlexBox, not a HorizontalFlexBox.
+func (r *Cell) SetMinWidth(value int) *Cell {
 	r.minWidth = value
 	return r
 }
 
+// SetMinHeigth sets the cells minimum height, this will not disable responsivness.
+// This has only an effect to cells of a HorizontalFlexBox.
+func (r *Cell) SetMinHeigth(value int) *Cell {
+	r.minHeigth = value
+	return r
+}
+
 // SetStyle replaces the style, it unsets width/height related keys
-func (r *FlexBoxCell) SetStyle(style lipgloss.Style) *FlexBoxCell {
+func (r *Cell) SetStyle(style lipgloss.Style) *Cell {
 	r.style = style.
 		UnsetWidth().
 		UnsetMaxWidth().
@@ -72,22 +82,22 @@ func (r *FlexBoxCell) SetStyle(style lipgloss.Style) *FlexBoxCell {
 }
 
 // GetStyle returns the copy of the cells current style
-func (r *FlexBoxCell) GetStyle() lipgloss.Style {
+func (r *Cell) GetStyle() lipgloss.Style {
 	return r.style.Copy()
 }
 
 // GetWidth returns real width of the cell
-func (r *FlexBoxCell) GetWidth() int {
+func (r *Cell) GetWidth() int {
 	return r.getMaxWidth()
 }
 
 // GetHeight returns real height of the cell
-func (r *FlexBoxCell) GetHeight() int {
+func (r *Cell) GetHeight() int {
 	return r.getMaxHeight()
 }
 
 // render the cell into string
-func (r *FlexBoxCell) render(inherited ...lipgloss.Style) string {
+func (r *Cell) render(inherited ...lipgloss.Style) string {
 	for _, style := range inherited {
 		r.style = r.style.Inherit(style)
 	}
@@ -98,31 +108,31 @@ func (r *FlexBoxCell) render(inherited ...lipgloss.Style) string {
 	return s.Render(r.content)
 }
 
-func (r *FlexBoxCell) getContentWidth() int {
+func (r *Cell) getContentWidth() int {
 	return r.getMaxWidth() - r.getExtraWidth()
 }
 
-func (r *FlexBoxCell) getContentHeight() int {
+func (r *Cell) getContentHeight() int {
 	return r.getMaxHeight() - r.getExtraHeight()
 }
 
-func (r *FlexBoxCell) getMaxWidth() int {
+func (r *Cell) getMaxWidth() int {
 	return r.width
 }
 
-func (r *FlexBoxCell) getMaxHeight() int {
+func (r *Cell) getMaxHeight() int {
 	return r.height
 }
 
-func (r *FlexBoxCell) getExtraWidth() int {
+func (r *Cell) getExtraWidth() int {
 	return r.style.GetHorizontalMargins() + r.style.GetHorizontalBorderSize()
 }
 
-func (r *FlexBoxCell) getExtraHeight() int {
+func (r *Cell) getExtraHeight() int {
 	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
 }
 
-func (r *FlexBoxCell) copy() FlexBoxCell {
+func (r *Cell) copy() Cell {
 	cellCopy := *r
 	cellCopy.style = r.GetStyle()
 	return cellCopy

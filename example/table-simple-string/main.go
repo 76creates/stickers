@@ -3,19 +3,21 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/76creates/stickers"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"log"
 	"os"
 	"unicode"
+
+	"github.com/76creates/stickers/flexbox"
+	"github.com/76creates/stickers/table"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var selectedValue string = "\nselect something with spacebar or enter"
 
 type model struct {
-	table   *stickers.TableSingleType[string]
-	infoBox *stickers.FlexBox
+	table   *table.TableSingleType[string]
+	infoBox *flexbox.FlexBox
 	headers []string
 }
 
@@ -39,8 +41,8 @@ func main() {
 	minSize := []int{4, 5, 5, 2, 5}
 
 	m := model{
-		table:   stickers.NewTableSingleType[string](0, 0, headers),
-		infoBox: stickers.NewFlexBox(0, 0).SetHeight(7),
+		table:   table.NewTableSingleType[string](0, 0, headers),
+		infoBox: flexbox.New(0, 0).SetHeight(7),
 		headers: headers,
 	}
 	m.table.SetStylePassing(true)
@@ -58,16 +60,16 @@ enter, spacebar: get column value
 ctrl+c: quit
 `
 	r1 := m.infoBox.NewRow()
-	r1.AddCells([]*stickers.FlexBoxCell{
-		stickers.NewFlexBoxCell(1, 1).
+	r1.AddCells(
+		flexbox.NewCell(1, 1).
 			SetID("info").
 			SetContent(infoText),
-		stickers.NewFlexBoxCell(1, 1).
+		flexbox.NewCell(1, 1).
 			SetID("info").
 			SetContent(selectedValue).
 			SetStyle(lipgloss.NewStyle().Bold(true)),
-	})
-	m.infoBox.AddRows([]*stickers.FlexBoxRow{r1})
+	)
+	m.infoBox.AddRows([]*flexbox.Row{r1})
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())
 	if err := p.Start(); err != nil {
