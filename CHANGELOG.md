@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.4] (draft)
+## [v1.4.0] (draft)
 ### ⚠ BREAKING CHANGES
 - Moved `flexbox` and `table` into separate packages, `github.com/76creates/stickers/flexbox` and `github.com/76creates/stickers/table` respectively. #10 @jon4hz
 ### Fixes
 - Minor lexical fixes
+- Fixed repo tags to match go semver format.
 ### Dependencies
 - Updated `github.com/charmbracelet/lipgloss` to `v0.6.0'
 ### Features
@@ -16,7 +17,7 @@ All notable changes to this project will be documented in this file.
 - Refactored `FlexBox.GetRow`, `FlexBox.Row`, `FlexBox.MustGetRow`, `FlexBoxRow.Cell`, `FlexBoxRow.GetCellWithID`, `FlexBoxRow.MustGetCellWithIndex`.<br>They are replaced with `FlexBoxRow.GetCell`, `FlexBoxRow.GetCellCopy`, `FlexBox.GetRow`, `FlexBox.GetRowCopy`,`FlexBox.GetRowCellCopy`.<br>Get* now returns pointer and triggers _recalculation_, while one can use Copy* function to get pointer to copied structs which can be used to lookup values without triggering _recalculation_.
 - `AddCells` now take cells as a variadic argument. #10 @jon4hz
 
-## [v1.3](https://github.com/76creates/stickers/compare/v1.2...v1.3) (2022-12-28)
+## [v1.3.0](https://github.com/76creates/stickers/compare/v1.2.0...v1.3.0) (2022-12-28)
 ### Fixes
 * Fixed cursor not moving to the last visible row when filtering
 * Fixed margins and borders not being rendered correctly #8
@@ -25,7 +26,7 @@ All notable changes to this project will be documented in this file.
 ### Features
 * Converted default cell inheritance of the row style to function `StylePassing` which can be set on the _Box_ and _Row_, if both box and row have style passing enabled, the row will inherit the box style before it passes style to the cells.
 
-## [v1.2](https://github.com/76creates/stickers/compare/v1.1...v1.2) (2022-02-27)
+## [v1.2.0](https://github.com/76creates/stickers/compare/v1.1.0...v1.2.0) (2022-02-27)
 ### Features
 * Filtering is now available for `Table` and `TableSingleType` using new methods:
     * `UnsetFilter` remove filtering
@@ -36,7 +37,7 @@ All notable changes to this project will be documented in this file.
 * Added filter info to the status box
 * Header rendering of sorting and filtering symbols is improved
 
-## [v1.1](https://github.com/76creates/stickers/compare/v1.0...v1.1) (2022-02-26)
+## [v1.1.0](https://github.com/76creates/stickers/compare/v1.0.0...v1.1.0) (2022-02-26)
 ### ⚠ BREAKING CHANGES
 * Refactored `Table` to support sorting, some methods have changed most notably revolving around adding rows since now its taking [][]any instead of [][]string, initial `Table` is now closer to `TableSingleType[string]`
 * Stickers now uses generics, so go1.18 is mandatory
