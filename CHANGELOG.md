@@ -3,14 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 ## [v1.4] (draft)
+### ⚠ BREAKING CHANGES
+- Moved `flexbox` and `table` into separate packages, `github.com/76creates/stickers/flexbox` and `github.com/76creates/stickers/table` respectively. #10 @jon4hz
 ### Fixes
 - Minor lexical fixes
 ### Dependencies
 - Updated `github.com/charmbracelet/lipgloss` to `v0.6.0'
 ### Features
 - Added `SetStylePassing` to _Table_ that will pass down the style all the way, from box to cell. No granularity for now.
+- Added `HorizontalFlexBox`. #10 @jon4hz
 ### Updates
-- Refactored `FlexBox.GetRow`, `FlexBox.Row`, `FlexBox.MustGetRow`, `FlexBoxRow.Cell`, `FlexBoxRow.GetCellWithID`, `FlexBoxRow.MustGetCellWithIndex`.<br>They are replaced with `FlexBoxRow.GetCell`, `FlexBoxRow.GetCellCopy`, `FlexBox.GetRow`, `FlexBox.GetRowCopy`,`FlexBox.GetRowCellCopy`.<br>Get* now returns pointer and triggers _recalculation_, while one can use Copy* function to get pointer to copied structs which can be used to lookup values without triggering _recalculation_. 
+- Refactored `FlexBox.GetRow`, `FlexBox.Row`, `FlexBox.MustGetRow`, `FlexBoxRow.Cell`, `FlexBoxRow.GetCellWithID`, `FlexBoxRow.MustGetCellWithIndex`.<br>They are replaced with `FlexBoxRow.GetCell`, `FlexBoxRow.GetCellCopy`, `FlexBox.GetRow`, `FlexBox.GetRowCopy`,`FlexBox.GetRowCellCopy`.<br>Get* now returns pointer and triggers _recalculation_, while one can use Copy* function to get pointer to copied structs which can be used to lookup values without triggering _recalculation_.
+- `AddCells` now take cells as a variadic argument. #10 @jon4hz
 
 ## [v1.3](https://github.com/76creates/stickers/compare/v1.2...v1.3) (2022-12-28)
 ### Fixes
