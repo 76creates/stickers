@@ -1,4 +1,4 @@
-package stickers
+package flexbox
 
 import "github.com/charmbracelet/lipgloss"
 
@@ -15,15 +15,15 @@ type FlexBox struct {
 	// fixedRowHeight will lock row height to a number, this disabless responsivness
 	fixedRowHeight int
 
-	rows []*FlexBoxRow
+	rows []*Row
 
 	// recalculateFlag indicates if next render should make calculations regarding
 	// the rows objects height
 	recalculateFlag bool
 }
 
-// NewFlexBox initialize FlexBox object with defaults
-func NewFlexBox(width, height int) *FlexBox {
+// New initialize FlexBox object with defaults
+func New(width, height int) *FlexBox {
 	r := &FlexBox{
 		width:           width,
 		height:          height,
@@ -50,10 +50,10 @@ func (r *FlexBox) StylePassing(value bool) *FlexBox {
 	return r
 }
 
-// NewRow initialize a new FlexBoxRow with width inherited from the FlexBox
-func (r *FlexBox) NewRow() *FlexBoxRow {
-	rw := &FlexBoxRow{
-		cells: []*FlexBoxCell{},
+// NewRow initialize a new Row with width inherited from the FlexBox
+func (r *FlexBox) NewRow() *Row {
+	rw := &Row{
+		cells: []*Cell{},
 		width: r.width,
 		style: lipgloss.NewStyle(),
 	}
@@ -61,14 +61,14 @@ func (r *FlexBox) NewRow() *FlexBoxRow {
 }
 
 // AddRows appends additional rows to the FlexBox
-func (r *FlexBox) AddRows(rows []*FlexBoxRow) *FlexBox {
+func (r *FlexBox) AddRows(rows []*Row) *FlexBox {
 	r.rows = append(r.rows, rows...)
 	r.setRecalculate()
 	return r
 }
 
 // SetRows replace rows on the FlexBox
-func (r *FlexBox) SetRows(rows []*FlexBoxRow) *FlexBox {
+func (r *FlexBox) SetRows(rows []*Row) *FlexBox {
 	r.rows = rows
 	r.setRecalculate()
 	return r
@@ -79,10 +79,11 @@ func (r *FlexBox) RowsLen() int {
 	return len(r.rows)
 }
 
-// GetRow returns the FlexBoxRow on the given index if it exists
+// GetRow returns the Row on the given index if it exists
 // note: forces the recalculation if found
-//		 returns nil if not found
-func (r *FlexBox) GetRow(index int) *FlexBoxRow {
+//
+//	returns nil if not found
+func (r *FlexBox) GetRow(index int) *Row {
 	if index >= 0 && index < len(r.rows) {
 		r.setRecalculate()
 		return r.rows[index]
@@ -90,11 +91,11 @@ func (r *FlexBox) GetRow(index int) *FlexBoxRow {
 	return nil
 }
 
-// GetRowCopy returns a copy of the FlexBoxRow on the given index, if row
+// GetRowCopy returns a copy of the Row on the given index, if row
 // does not exist it will return nil. Copied row also gets copies of the
 // cells. This is useful when you need to get rows attribute without
 // triggering a recalculation.
-func (r *FlexBox) GetRowCopy(index int) *FlexBoxRow {
+func (r *FlexBox) GetRowCopy(index int) *Row {
 	if index >= 0 && index < len(r.rows) {
 		rowCopy := r.rows[index].copy()
 		return &rowCopy
@@ -106,7 +107,7 @@ func (r *FlexBox) GetRowCopy(index int) *FlexBoxRow {
 // within the given row with index y, if row or cell do not exist it will
 // return nil. This is useful when you need to get rows attribute without
 // triggering a recalculation.
-func (r *FlexBox) GetRowCellCopy(rowIndex, cellIndex int) *FlexBoxCell {
+func (r *FlexBox) GetRowCellCopy(rowIndex, cellIndex int) *Cell {
 	if rowIndex >= 0 && rowIndex < len(r.rows) {
 		if cellIndex >= 0 && cellIndex < len(r.rows[rowIndex].cells) {
 			cellCopy := r.rows[rowIndex].cells[cellIndex].copy()
@@ -116,8 +117,8 @@ func (r *FlexBox) GetRowCellCopy(rowIndex, cellIndex int) *FlexBoxCell {
 	return nil
 }
 
-// UpdateRow replaces the FlexBoxRow on the given index
-func (r *FlexBox) UpdateRow(index int, row *FlexBoxRow) *FlexBox {
+// UpdateRow replaces the Row on the given index
+func (r *FlexBox) UpdateRow(index int, row *Row) *FlexBox {
 	r.rows[index] = row
 	r.setRecalculate()
 	return r

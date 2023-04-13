@@ -1,4 +1,4 @@
-package stickers
+package flexbox
 
 import (
 	"strconv"
@@ -6,15 +6,15 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// FlexBoxRow is the container for the cells, this object has the least to do with the ratio
+// Column is the container for the cells, this object has the least to do with the ratio
 // of the construction as it takes all of the needed ratio information from the cell slice
-// rows are stacked vertically
-type FlexBoxRow struct {
-	// style of the row
+// columns are stacked horizontally.
+type Column struct {
+	// style of the column
 	style         lipgloss.Style
 	styleAncestor bool
 
-	cells []*FlexBoxCell
+	cells []*Cell
 
 	height int
 	width  int
@@ -24,9 +24,9 @@ type FlexBoxRow struct {
 	recalculateFlag bool
 }
 
-// AddCells appends the cells to the row
+// AddCells appends the cells to the column
 // if the cell ID is not set it will default to the index of the cell
-func (r *FlexBoxRow) AddCells(cells []*FlexBoxCell) *FlexBoxRow {
+func (r *Column) AddCells(cells ...*Cell) *Column {
 	r.cells = append(r.cells, cells...)
 	for i, cell := range r.cells {
 		if cell.id == "" {
@@ -38,14 +38,15 @@ func (r *FlexBoxRow) AddCells(cells []*FlexBoxCell) *FlexBoxRow {
 }
 
 // CellsLen returns the len of the cells slice
-func (r *FlexBoxRow) CellsLen() int {
+func (r *Column) CellsLen() int {
 	return len(r.cells)
 }
 
-// GetCell returns the FlexBoxCell on the given index if it exists
+// GetCell returns the Cell on the given index if it exists
 // note: forces the recalculation if found
-//		 returns nil if not found
-func (r *FlexBoxRow) GetCell(index int) *FlexBoxCell {
+//
+//	returns nil if not found
+func (r *Column) GetCell(index int) *Cell {
 	if index >= 0 && index < len(r.cells) {
 		r.setRecalculate()
 		return r.cells[index]
@@ -53,10 +54,10 @@ func (r *FlexBoxRow) GetCell(index int) *FlexBoxCell {
 	return nil
 }
 
-// GetCellCopy returns a copy of the FlexBoxCell on the given index, if cell
+// GetCellCopy returns a copy of the Cell on the given index, if cell
 // does not exist it will return nil. This is useful when you need to get
 // cells attribute without triggering a recalculation.
-func (r *FlexBoxRow) GetCellCopy(index int) *FlexBoxCell {
+func (r *Column) GetCellCopy(index int) *Cell {
 	if index >= 0 && index < len(r.cells) {
 		c := r.cells[index].copy()
 		return &c
@@ -66,8 +67,9 @@ func (r *FlexBoxRow) GetCellCopy(index int) *FlexBoxCell {
 
 // GetCellWithID returns the cell with the given ID if existing
 // note: forces the recalculation if found
-//		 returns nil if not found
-func (r *FlexBoxRow) GetCellWithID(id string) *FlexBoxCell {
+//
+//	returns nil if not found
+func (r *Column) GetCellWithID(id string) *Cell {
 	for _, c := range r.cells {
 		if c.id == id {
 			r.setRecalculate()
@@ -79,7 +81,7 @@ func (r *FlexBoxRow) GetCellWithID(id string) *FlexBoxCell {
 
 // UpdateCellWithIndex replaces the cell on the given index if it exists
 // if its not existing no changes will apply
-func (r *FlexBoxRow) UpdateCellWithIndex(index int, cell *FlexBoxCell) {
+func (r *Column) UpdateCellWithIndex(index int, cell *Cell) {
 	if index >= 0 && len(r.cells) > 0 && index < len(r.cells) {
 		r.cells[index] = cell
 		r.setRecalculate()
@@ -87,7 +89,7 @@ func (r *FlexBoxRow) UpdateCellWithIndex(index int, cell *FlexBoxCell) {
 }
 
 // SetStyle replaces the style, it unsets width/height related keys
-func (r *FlexBoxRow) SetStyle(style lipgloss.Style) *FlexBoxRow {
+func (r *Column) SetStyle(style lipgloss.Style) *Column {
 	r.style = style.
 		UnsetWidth().
 		UnsetMaxWidth().
@@ -98,29 +100,29 @@ func (r *FlexBoxRow) SetStyle(style lipgloss.Style) *FlexBoxRow {
 }
 
 // StylePassing set whether the style should be passed to the cells
-func (r *FlexBoxRow) StylePassing(value bool) *FlexBoxRow {
+func (r *Column) StylePassing(value bool) *Column {
 	r.styleAncestor = value
 	return r
 }
 
-func (r *FlexBoxRow) setHeight(value int) {
+func (r *Column) setHeight(value int) {
 	r.height = value
 	r.setRecalculate()
 }
 
-func (r *FlexBoxRow) setWidth(value int) {
+func (r *Column) setWidth(value int) {
 	r.width = value
 	r.setRecalculate()
 }
 
-func (r *FlexBoxRow) render(inherited ...lipgloss.Style) string {
+func (r *Column) render(inherited ...lipgloss.Style) string {
 	var inheritedStyle []lipgloss.Style
 
 	for _, style := range inherited {
 		r.style = r.style.Inherit(style)
 	}
 
-	// intentionally applied after row inherits the box style
+	// intentionally applied after column inherits the box style
 	if r.styleAncestor {
 		inheritedStyle = append(inheritedStyle, r.style)
 	}
@@ -133,19 +135,19 @@ func (r *FlexBoxRow) render(inherited ...lipgloss.Style) string {
 	return r.style.
 		Width(r.getContentWidth()).MaxWidth(r.getMaxWidth()).
 		Height(r.getContentHeight()).MaxHeight(r.getMaxHeight()).
-		Render(lipgloss.JoinHorizontal(lipgloss.Top, renderedCells...))
+		Render(lipgloss.JoinVertical(lipgloss.Left, renderedCells...))
 }
 
-func (r *FlexBoxRow) setRecalculate() {
+func (r *Column) setRecalculate() {
 	r.recalculateFlag = true
 }
 
-func (r *FlexBoxRow) unsetRecalculate() {
+func (r *Column) unsetRecalculate() {
 	r.recalculateFlag = false
 }
 
 // recalculate fetches the cell's height/width distribution slices and sets it on the cells
-func (r *FlexBoxRow) recalculate() {
+func (r *Column) recalculate() {
 	if r.recalculateFlag {
 		if len(r.cells) > 0 {
 			r.distributeCellDimensions(r.calculateCellsDimensions())
@@ -154,96 +156,97 @@ func (r *FlexBoxRow) recalculate() {
 	}
 }
 
-// distributeCellDimensions sets height of each row per distribution array
-func (r *FlexBoxRow) distributeCellDimensions(xMatrix, yMatrix []int) {
-	for index, x := range xMatrix {
-		r.cells[index].width = x
-		r.cells[index].height = yMatrix[index]
+// distributeCellDimensions sets width of each column per distribution array
+func (r *Column) distributeCellDimensions(xMatrix, yMatrix []int) {
+	for index, y := range yMatrix {
+		r.cells[index].width = xMatrix[index]
+		r.cells[index].height = y
 	}
 }
 
 // calculateCellsDimensions calculates the height and width of the each cell
-func (r *FlexBoxRow) calculateCellsDimensions() (xMatrix, yMatrix []int) {
+func (r *Column) calculateCellsDimensions() (xMatrix, yMatrix []int) {
 	// calculate the cell height, it uses fixed combined ratio since the height of each cell
-	// is individual and does not stack, row height will be calculated using the ratio of the
-	// highest cell in the slice
-	cellYMatrix, cellYMatrixMax := r.getCellHeightMatrix()
-	// reminder not needed here due to how combined ratio is passed
-	yMatrix, _ = distributeToMatrix(r.getContentHeight(), cellYMatrixMax, cellYMatrix)
+	// is individual and does not stack, column width will be calculated using the ratio of the
+	// widest cell in the slice
+	cellXMatrix, cellXMatrixMax := r.getCellWidthMatrix()
 
-	// get the min width matrix of the cells if any
-	withMinWidth := false
-	var minWidthMatrix []int
+	// reminder not needed here due to how combined ratio is passed
+	xMatrix, _ = distributeToMatrix(r.getContentWidth(), cellXMatrixMax, cellXMatrix)
+
+	// get the min heigth matrix of the cells if any
+	withMinHeigth := false
+	var minHeigthMatrix []int
 	for _, c := range r.cells {
-		minWidthMatrix = append(minWidthMatrix, c.minWidth)
-		if c.minWidth > 0 {
-			withMinWidth = true
+		minHeigthMatrix = append(minHeigthMatrix, c.minHeigth)
+		if c.minHeigth > 0 {
+			withMinHeigth = true
 		}
 	}
 
-	// calculate the cell width matrix
-	if withMinWidth {
-		xMatrix = calculateRatioWithMinimum(r.getContentWidth(), r.getCellWidthMatrix(), minWidthMatrix)
+	// calculate the cell heigth matrix
+	if withMinHeigth {
+		yMatrix = calculateRatioWithMinimum(r.getContentHeight(), r.getCellHeightMatrix(), minHeigthMatrix)
 	} else {
-		xMatrix = calculateRatio(r.getContentWidth(), r.getCellWidthMatrix())
+		yMatrix = calculateRatio(r.getContentHeight(), r.getCellHeightMatrix())
 	}
 
 	return xMatrix, yMatrix
 }
 
-// getCellHeightMatrix return the matrix of the cell height in cells and the max value in it
-func (r *FlexBoxRow) getCellHeightMatrix() (cellHeightMatrix []int, max int) {
-	max = 0
+// getCellHeightMatrix return the matrix of the cell height in cells
+func (r *Column) getCellHeightMatrix() (cellHeightMatrix []int) {
 	for _, cell := range r.cells {
-		if cell.ratioY > max {
-			max = cell.ratioY
-		}
 		cellHeightMatrix = append(cellHeightMatrix, cell.ratioY)
 	}
-	return cellHeightMatrix, max
+	return cellHeightMatrix
 }
 
-// getCellWidthMatrix return the matrix of the cell width in cells
-func (r *FlexBoxRow) getCellWidthMatrix() (cellWidthMatrix []int) {
+// getCellWidthMatrix return the matrix of the cell width in cells and the max value in it
+func (r *Column) getCellWidthMatrix() (cellWidthMatrix []int, max int) {
+	max = 0
 	for _, cell := range r.cells {
+		if cell.ratioX > max {
+			max = cell.ratioX
+		}
 		cellWidthMatrix = append(cellWidthMatrix, cell.ratioX)
 	}
-	return cellWidthMatrix
+	return cellWidthMatrix, max
 }
 
-func (r *FlexBoxRow) getContentWidth() int {
+func (r *Column) getContentWidth() int {
 	return r.getMaxWidth() - r.getExtraWidth()
 }
 
-func (r *FlexBoxRow) getContentHeight() int {
+func (r *Column) getContentHeight() int {
 	return r.getMaxHeight() - r.getExtraHeight()
 }
 
-func (r *FlexBoxRow) getMaxWidth() int {
+func (r *Column) getMaxWidth() int {
 	return r.width
 }
 
-func (r *FlexBoxRow) getMaxHeight() int {
+func (r *Column) getMaxHeight() int {
 	return r.height
 }
 
-func (r *FlexBoxRow) getExtraWidth() int {
+func (r *Column) getExtraWidth() int {
 	return r.style.GetHorizontalMargins() + r.style.GetHorizontalBorderSize()
 }
 
-func (r *FlexBoxRow) getExtraHeight() int {
+func (r *Column) getExtraHeight() int {
 	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
 }
 
-func (r *FlexBoxRow) copy() FlexBoxRow {
-	var cells []*FlexBoxCell
+func (r *Column) copy() Column {
+	var cells []*Cell
 	for _, cell := range r.cells {
 		cellCopy := cell.copy()
 		cells = append(cells, &cellCopy)
 	}
-	rowCopy := *r
-	rowCopy.cells = cells
-	rowCopy.style = r.style.Copy()
+	columnCopy := *r
+	columnCopy.cells = cells
+	columnCopy.style = r.style.Copy()
 
-	return rowCopy
+	return columnCopy
 }

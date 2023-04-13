@@ -1,15 +1,17 @@
-package stickers
+package table
 
 import (
 	"errors"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
 	"log"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/76creates/stickers/flexbox"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
@@ -134,8 +136,8 @@ type Table struct {
 	// stylePassing if true, styles are passed all the way down from box to cell
 	stylePassing bool
 
-	headerBox *FlexBox
-	rowsBox   *FlexBox
+	headerBox *flexbox.FlexBox
+	rowsBox   *flexbox.FlexBox
 
 	// these flags indicate weather we should update rows and headers flex boxes
 	updateRowsFlag    bool
@@ -145,7 +147,7 @@ type Table struct {
 // NewTable initialize Table object with defaults
 func NewTable(width, height int, columnHeaders []string) *Table {
 	var columnRatio, columnMinWidth []int
-	for _ = range columnHeaders {
+	for range columnHeaders {
 		columnRatio = append(columnRatio, 1)
 		columnMinWidth = append(columnMinWidth, 0)
 	}
@@ -181,8 +183,8 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		rowsTopIndex: 0,
 		rowHeight:    1,
 
-		headerBox: NewFlexBox(width, 1).SetStyle(tableDefaultHeaderStyle),
-		rowsBox:   NewFlexBox(width, height-1),
+		headerBox: flexbox.New(width, 1).SetStyle(tableDefaultHeaderStyle),
+		rowsBox:   flexbox.New(width, height-1),
 
 		styles:       styles,
 		stylePassing: false,
@@ -536,7 +538,7 @@ func (r *Table) updateHeader() *Table {
 	if !r.updateHeadersFlag {
 		return r
 	}
-	var cells []*FlexBoxCell
+	var cells []*flexbox.Cell
 	r.headerBox.SetStyle(r.styles[TableHeaderStyleKey])
 	for i, title := range r.columnHeaders {
 		// titleSuffix at the moment can be sort and filter characters
@@ -548,7 +550,7 @@ func (r *Table) updateHeader() *Table {
 		if _h != nil {
 			_c := _h.GetCellCopy(i)
 			if _c == nil {
-				panic("cell with index " + string(i) + " is nil")
+				panic("cell with index " + strconv.Itoa(i) + " is nil")
 			}
 			_w := _c.GetWidth()
 
@@ -587,12 +589,12 @@ func (r *Table) updateHeader() *Table {
 		}
 		cells = append(
 			cells,
-			NewFlexBoxCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title+titleSuffix),
+			flexbox.NewCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title+titleSuffix),
 		)
 	}
 	r.headerBox.SetRows(
-		[]*FlexBoxRow{
-			r.headerBox.NewRow().StylePassing(r.stylePassing).AddCells(cells),
+		[]*flexbox.Row{
+			r.headerBox.NewRow().StylePassing(r.stylePassing).AddCells(cells...),
 		},
 	)
 	r.unsetHeadersUpdate()
@@ -618,15 +620,15 @@ func (r *Table) updateRows() {
 		rowsBottomIndex = len(r.filteredRows)
 	}
 
-	var rows []*FlexBoxRow
+	var rows []*flexbox.Row
 	for ir, columns := range r.filteredRows[r.rowsTopIndex:rowsBottomIndex] {
 		// irCorrected is corrected row index since we iterate only visible rows
 		irCorrected := ir + r.rowsTopIndex
 
-		var cells []*FlexBoxCell
+		var cells []*flexbox.Cell
 		for ic, column := range columns {
 			// initialize column cell
-			c := NewFlexBoxCell(r.columnRatio[ic], r.rowHeight).
+			c := flexbox.NewCell(r.columnRatio[ic], r.rowHeight).
 				SetMinWidth(r.columnMinWidth[ic]).
 				SetContent(getStringFromOrdered(column))
 			// update style if cursor is on the cell, otherwise it's inherited from the row
@@ -636,7 +638,7 @@ func (r *Table) updateRows() {
 			cells = append(cells, c)
 		}
 		// initialize new row from the rows box and add generated cells
-		rw := r.rowsBox.NewRow().StylePassing(r.stylePassing).AddCells(cells)
+		rw := r.rowsBox.NewRow().StylePassing(r.stylePassing).AddCells(cells...)
 
 		// rows have three styles, normal, subsequent and selected
 		// normal and subsequent rows should differ for readability

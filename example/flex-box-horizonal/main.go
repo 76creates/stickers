@@ -33,46 +33,30 @@ var (
 )
 
 type model struct {
-	flexBox *flexbox.FlexBox
+	flexBox *flexbox.HorizontalFlexBox
 }
 
 func main() {
 	m := model{
-		flexBox: flexbox.New(0, 0),
+		flexBox: flexbox.NewHorizontal(0, 0),
 	}
 
-	rows := []*flexbox.Row{
-		m.flexBox.NewRow().AddCells(
-			flexbox.NewCell(1, 6).SetStyle(style1),
-			flexbox.NewCell(1, 6).SetStyle(style2),
-			flexbox.NewCell(1, 6).SetStyle(style3),
+	columns := []*flexbox.Column{
+		m.flexBox.NewColumn().AddCells(
+			flexbox.NewCell(1, 1).SetStyle(style1),
+			flexbox.NewCell(1, 1).SetStyle(style2),
 		),
-		m.flexBox.NewRow().AddCells(
-			flexbox.NewCell(2, 4).SetStyle(style4),
-			flexbox.NewCell(2, 4).SetStyle(style5),
-			flexbox.NewCell(3, 4).SetStyle(style6),
-			flexbox.NewCell(3, 4).SetStyle(style7),
-			flexbox.NewCell(3, 4).SetStyle(style8),
-			flexbox.NewCell(4, 4).SetStyle(style9),
-			flexbox.NewCell(4, 4).SetStyle(style10),
+		m.flexBox.NewColumn().AddCells(
+			flexbox.NewCell(2, 1).SetStyle(style3),
 		),
-		m.flexBox.NewRow().AddCells(
-			flexbox.NewCell(2, 5).SetStyle(style11),
-			flexbox.NewCell(3, 5).SetStyle(style12),
-			flexbox.NewCell(10, 5).SetStyle(style13),
-			flexbox.NewCell(3, 5).SetStyle(style14),
-			flexbox.NewCell(2, 5).SetStyle(style15),
-		),
-		m.flexBox.NewRow().AddCells(
-			flexbox.NewCell(1, 4).SetStyle(style16),
-			flexbox.NewCell(1, 3).SetStyle(style17),
-			flexbox.NewCell(1, 2).SetStyle(style18),
-			flexbox.NewCell(1, 3).SetStyle(style19),
-			flexbox.NewCell(1, 4).SetStyle(style20),
+		m.flexBox.NewColumn().AddCells(
+			flexbox.NewCell(1, 1).SetStyle(style4),
+			flexbox.NewCell(1, 2).SetStyle(style5),
+			flexbox.NewCell(1, 1).SetStyle(style6),
 		),
 	}
 
-	m.flexBox.AddRows(rows)
+	m.flexBox.AddColumns(columns)
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())
 	if err := p.Start(); err != nil {
