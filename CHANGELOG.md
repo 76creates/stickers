@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.4.0] (draft)
+## [v1.4.0] (https://github.com/76creates/stickers/compare/v1.3.0...v1.4.0) (2024-09-11)
 ### ⚠ BREAKING CHANGES
 - Moved `flexbox` and `table` into separate packages, `github.com/76creates/stickers/flexbox` and `github.com/76creates/stickers/table` respectively. #10 @jon4hz
 ### Fixes
