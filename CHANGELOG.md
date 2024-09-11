@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v1.4.1] (draft)
+### Updates
+- Updated Go to version `1.23`
+### Dependencies
+- Updated `github.com/charmbracelet/lipgloss` to `v0.13.0'
+- Updated `github.com/charmbracelet/bubbletea` to `v1.1.1'
+- Updated `github.com/gocarina/gocsv` to `78e41c74b4b1` 
 
 ## [v1.4.0] (https://github.com/76creates/stickers/compare/v1.3.0...v1.4.0) (2024-09-11)
 ### ⚠ BREAKING CHANGES
