@@ -1,15 +1,19 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## [v1.4.1] (draft)
+## [v1.4.1](https://github.com/76creates/stickers/compare/v1.4.0...v1.4.1) (2024-10-21)
+### Features
+- Added `OrderByAsc` and `OrderByDesc` methods to `Table` #12 @drmille2
+### Deprecations
+- `OrderByColumn` is deprecated by `OrderByAsc` and `OrderByDesc` methods. #12 @drmille2
 ### Updates
 - Updated Go to version `1.23`
 ### Dependencies
 - Updated `github.com/charmbracelet/lipgloss` to `v0.13.0`
 - Updated `github.com/charmbracelet/bubbletea` to `v1.1.1`
-- Updated `github.com/gocarina/gocsv` to `78e41c74b4b1` 
+- Updated `github.com/gocarina/gocsv` to `78e41c74b4b1`
 
-## [v1.4.0] (https://github.com/76creates/stickers/compare/v1.3.0...v1.4.0) (2024-09-11)
+## [v1.4.0](https://github.com/76creates/stickers/compare/v1.3.0...v1.4.0) (2024-09-11)
 ### ⚠ BREAKING CHANGES
 - Moved `flexbox` and `table` into separate packages, `github.com/76creates/stickers/flexbox` and `github.com/76creates/stickers/table` respectively. #10 @jon4hz
 ### Fixes
