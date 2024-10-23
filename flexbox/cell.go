@@ -125,11 +125,11 @@ func (r *Cell) getMaxHeight() int {
 }
 
 func (r *Cell) getExtraWidth() int {
-	return r.style.GetHorizontalMargins() + r.style.GetHorizontalBorderSize()
+	return r.style.GetHorizontalFrameSize()
 }
 
 func (r *Cell) getExtraHeight() int {
-	return r.style.GetVerticalMargins() + r.style.GetVerticalBorderSize()
+	return r.style.GetVerticalFrameSize()
 }
 
 func (r *Cell) copy() Cell {
