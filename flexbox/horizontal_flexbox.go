@@ -2,7 +2,7 @@ package flexbox
 
 import "github.com/charmbracelet/lipgloss"
 
-// HorizontalFlexBox responsive box grid insipred by CSS flexbox
+// HorizontalFlexBox responsive box grid inspired by CSS flexbox
 type HorizontalFlexBox struct {
 	// style to apply to the gridbox itself
 	style         lipgloss.Style

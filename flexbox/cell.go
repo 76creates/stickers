@@ -5,7 +5,7 @@ import (
 )
 
 // Cell is a building block object of the FlexBox, it represents a single cell within a box
-// A FlexBox stacks cells horizonally.
+// A FlexBox stacks cells horizontally.
 // A HorizontalFlexBox stacks cells vertically. (controverse, isn't it?)
 type Cell struct {
 	// style of the cell, when rendering it will inherit the style of the parent row
@@ -20,8 +20,8 @@ type Cell struct {
 	ratioY int
 	// minWidth minimal width of the cell
 	minWidth int
-	// minHeigth minimal heigth of the cell
-	minHeigth int
+	// minHeight minimal height of the cell
+	minHeight int
 
 	width   int
 	height  int
@@ -64,10 +64,16 @@ func (r *Cell) SetMinWidth(value int) *Cell {
 	return r
 }
 
-// SetMinHeigth sets the cells minimum height, this will not disable responsivness.
-// This has only an effect to cells of a HorizontalFlexBox.
+
+// Deprecated: use [*Cell.SetMinHeight]
 func (r *Cell) SetMinHeigth(value int) *Cell {
-	r.minHeigth = value
+  return r.SetMinHeight(value)
+}
+
+// SetMinHeight sets the cells minimum height, this will not disable responsivness.
+// This has only an effect to cells of a HorizontalFlexBox.
+func (r *Cell) SetMinHeight(value int) *Cell {
+	r.minHeight = value
 	return r
 }
 
@@ -83,7 +89,7 @@ func (r *Cell) SetStyle(style lipgloss.Style) *Cell {
 
 // GetStyle returns the copy of the cells current style
 func (r *Cell) GetStyle() lipgloss.Style {
-	return r.style.Copy()
+	return r.style
 }
 
 // GetWidth returns real width of the cell

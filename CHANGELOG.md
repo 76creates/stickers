@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v1.4.2](https://github.com/76creates/stickers/compare/v1.4.1...v1.4.2) (2024-11-26)
+### Fixes
+- Fix typo in flexbox/Cell.SetMinHeight
+### Deprecations
+- `Cell.SetMinHeigth` is now deprecated in favour of SetMinHeight.
+
 ## [v1.4.1](https://github.com/76creates/stickers/compare/v1.4.0...v1.4.1) (2024-10-21)
 ### Features
 - Added `OrderByAsc` and `OrderByDesc` methods to `Table` #12 @drmille2
