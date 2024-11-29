@@ -245,7 +245,7 @@ func (r *Row) copy() Row {
 	}
 	rowCopy := *r
 	rowCopy.cells = cells
-	rowCopy.style = r.style.Copy()
+	rowCopy.style = r.style
 
 	return rowCopy
 }

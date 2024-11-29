@@ -2,7 +2,7 @@ package flexbox
 
 import "github.com/charmbracelet/lipgloss"
 
-// FlexBox responsive box grid insipred by CSS flexbox
+// FlexBox responsive box grid inspired by CSS flexbox
 type FlexBox struct {
 	// style to apply to the gridbox itself
 	style         lipgloss.Style
@@ -223,7 +223,7 @@ func (r *FlexBox) distributeRowsDimensions(ratioDistribution []int) {
 	}
 }
 
-// getRowMatrix return the matrix of the cell hights for all the rows
+// getRowMatrix return the matrix of the cell heights for all the rows
 func (r *FlexBox) getRowMatrix() (rowMatrix [][]int) {
 	for _, row := range r.rows {
 		var cellValues []int

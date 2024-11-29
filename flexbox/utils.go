@@ -30,7 +30,7 @@ func calculateRatioWithMinimum(distribute int, matrix []int, minimumMatrix []int
 			ratioDistribution[i] = d
 		}
 	}
-	// TODO: calculate reminder and if negative shrink right most column
+	// TODO: calculate remainder and if negative shrink right most column
 
 	return ratioDistribution
 }
@@ -49,16 +49,16 @@ func calculateRatio(distribute int, matrix []int) (ratioDistribution []int) {
 	}
 
 	if combinedRatios > 0 {
-		var reminder int
-		ratioDistribution, reminder = distributeToMatrix(distribute, combinedRatios, matrix)
-		if reminder > 0 {
-			for index, reminderAdded := range distributeReminder(reminder, matrix) {
-				ratioDistribution[index] += reminderAdded
-				reminder -= reminderAdded
+		var remainder int
+		ratioDistribution, remainder = distributeToMatrix(distribute, combinedRatios, matrix)
+		if remainder > 0 {
+			for index, remainderAdded := range distributeRemainder(remainder, matrix) {
+				ratioDistribution[index] += remainderAdded
+				remainder -= remainderAdded
 			}
 		}
 		// TODO: rethink maybe, does this fn belong here
-		if reminder < 0 {
+		if remainder < 0 {
 			// happens when there is minimum value
 		}
 	}
@@ -66,15 +66,15 @@ func calculateRatio(distribute int, matrix []int) (ratioDistribution []int) {
 	return ratioDistribution
 }
 
-func distributeToMatrix(distribute int, combinedRatio int, matrix []int) (distribution []int, reminder int) {
-	reminder = distribute
+func distributeToMatrix(distribute int, combinedRatio int, matrix []int) (distribution []int, remainder int) {
+	remainder = distribute
 	for _, max := range matrix {
 		ratioDistributionValue := int(math.Floor((float64(max) / float64(combinedRatio)) * float64(distribute)))
 		distribution = append(distribution, ratioDistributionValue)
-		reminder -= ratioDistributionValue
+		remainder -= ratioDistributionValue
 
 	}
-	return distribution, reminder
+	return distribution, remainder
 }
 
 func calculateMatrixRatio(distribute int, matrix [][]int) (ratioDistribution []int) {
@@ -92,21 +92,21 @@ func calculateMatrixRatio(distribute int, matrix [][]int) (ratioDistribution []i
 	return calculateRatio(distribute, maxRatio)
 }
 
-// distributeReminder is simple reminder distributor, it will distribute add 1 to next highest
-// matrix value till it runs out of reminder to distribute, this might be improved for some more
+// distributeRemainder is simple remainder distributor, it will distribute add 1 to next highest
+// matrix value till it runs out of remainder to distribute, this might be improved for some more
 // complex cases
-func distributeReminder(reminder int, matrixMaxRatio []int) (reminderDistribution []int) {
+func distributeRemainder(remainder int, matrixMaxRatio []int) (remainderDistribution []int) {
 	for range matrixMaxRatio {
-		reminderDistribution = append(reminderDistribution, 0)
+		remainderDistribution = append(remainderDistribution, 0)
 	}
 
 	distributed := 0
-	for reminder > 0 {
+	for remainder > 0 {
 		maxIndex := 0
 		maxRatio := 0
 		for index, ratio := range matrixMaxRatio {
 			// skip if already expanded
-			if reminderDistribution[index] > 0 {
+			if remainderDistribution[index] > 0 {
 				continue
 			}
 			if ratio > maxRatio {
@@ -114,10 +114,10 @@ func distributeReminder(reminder int, matrixMaxRatio []int) (reminderDistributio
 				maxIndex = index
 			}
 		}
-		reminderDistribution[maxIndex] += 1
+		remainderDistribution[maxIndex] += 1
 		distributed += 1
-		reminder -= 1
+		remainder -= 1
 	}
 
-	return reminderDistribution
+	return remainderDistribution
 }

@@ -18,7 +18,7 @@ var (
 	tableDefaultHeaderStyle = lipgloss.NewStyle().
 				Background(lipgloss.Color("#7158e2")).
 				Foreground(lipgloss.Color("#ffffff"))
-	tableDefaultFooterStyle = tableDefaultHeaderStyle.Copy().Align(lipgloss.Right).Height(1)
+	tableDefaultFooterStyle = tableDefaultHeaderStyle.Align(lipgloss.Right).Height(1)
 	tableDefaultRowsStyle   = lipgloss.NewStyle().
 				Background(lipgloss.Color("#4b4b4b")).
 				Foreground(lipgloss.Color("#ffffff"))
@@ -123,7 +123,6 @@ type Table struct {
 	rowsTopIndex       int
 	cursorIndexY       int
 	cursorIndexX       int
-	cursorIndexYMemory int
 
 	height int
 	width  int
@@ -376,9 +375,7 @@ func (r *Table) AddRows(rows [][]any) (*Table, error) {
 		}
 	}
 	// append rows
-	for _, row := range rows {
-		r.rows = append(r.rows, row)
-	}
+  r.rows = append(r.rows, rows...)
 
 	r.applyFilter()
 	r.setRowsUpdate()
@@ -659,7 +656,6 @@ func (r *Table) updateRows() {
 	r.rowsBox.LockRowHeight(r.rowHeight)
 	r.rowsBox.SetRows(rows)
 	r.unsetRowsUpdate()
-	return
 }
 
 // applyFilter filters column n by a value s
@@ -768,25 +764,25 @@ func isOrdered(e any) bool {
 
 // getStringFromOrdered returns string from interface that was produced with one of Ordered types
 func getStringFromOrdered(i any) string {
-	switch i.(type) {
+  switch i := i.(type) {
 	case string:
-		return i.(string)
+		return i
 	case int:
-		return strconv.Itoa(i.(int))
+		return strconv.Itoa(i)
 	case int8:
-		return strconv.Itoa(int(i.(int8)))
+		return strconv.Itoa(int(i))
 	case int16:
-		return strconv.Itoa(int(i.(int16)))
+		return strconv.Itoa(int(i))
 	case int32:
-		return strconv.Itoa(int(i.(int32)))
+		return strconv.Itoa(int(i))
 	case int64:
-		return strconv.Itoa(int(i.(int64)))
+		return strconv.Itoa(int(i))
 	case float32:
 		// default precision of 24
-		return strconv.FormatFloat(float64(i.(float32)), 'G', 0, 32)
+		return strconv.FormatFloat(float64(i), 'G', 0, 32)
 	case float64:
 		// default precision of 24
-		return strconv.FormatFloat(i.(float64), 'G', 0, 64)
+		return strconv.FormatFloat(i, 'G', 0, 64)
 	default:
 		return ""
 	}

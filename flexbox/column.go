@@ -174,19 +174,19 @@ func (r *Column) calculateCellsDimensions() (xMatrix, yMatrix []int) {
 	// reminder not needed here due to how combined ratio is passed
 	xMatrix, _ = distributeToMatrix(r.getContentWidth(), cellXMatrixMax, cellXMatrix)
 
-	// get the min heigth matrix of the cells if any
-	withMinHeigth := false
-	var minHeigthMatrix []int
+	// get the min height matrix of the cells if any
+	withMinHeight := false
+	var minHeightMatrix []int
 	for _, c := range r.cells {
-		minHeigthMatrix = append(minHeigthMatrix, c.minHeigth)
-		if c.minHeigth > 0 {
-			withMinHeigth = true
+		minHeightMatrix = append(minHeightMatrix, c.minHeight)
+		if c.minHeight > 0 {
+			withMinHeight = true
 		}
 	}
 
-	// calculate the cell heigth matrix
-	if withMinHeigth {
-		yMatrix = calculateRatioWithMinimum(r.getContentHeight(), r.getCellHeightMatrix(), minHeigthMatrix)
+	// calculate the cell height matrix
+	if withMinHeight {
+		yMatrix = calculateRatioWithMinimum(r.getContentHeight(), r.getCellHeightMatrix(), minHeightMatrix)
 	} else {
 		yMatrix = calculateRatio(r.getContentHeight(), r.getCellHeightMatrix())
 	}
@@ -246,7 +246,7 @@ func (r *Column) copy() Column {
 	}
 	columnCopy := *r
 	columnCopy.cells = cells
-	columnCopy.style = r.style.Copy()
+	columnCopy.style = r.style
 
 	return columnCopy
 }
