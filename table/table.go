@@ -16,22 +16,22 @@ import (
 
 var (
 	tableDefaultHeaderStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#7158e2")).
-				Foreground(lipgloss.Color("#ffffff"))
+		Background(lipgloss.Color("#7158e2")).
+		Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultFooterStyle = tableDefaultHeaderStyle.Align(lipgloss.Right).Height(1)
 	tableDefaultRowsStyle   = lipgloss.NewStyle().
-				Background(lipgloss.Color("#4b4b4b")).
-				Foreground(lipgloss.Color("#ffffff"))
+		Background(lipgloss.Color("#4b4b4b")).
+		Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsSubsequentStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#3d3d3d")).
-					Foreground(lipgloss.Color("#ffffff"))
+		Background(lipgloss.Color("#3d3d3d")).
+		Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsCursorStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#f7b731")).
-					Foreground(lipgloss.Color("#000000")).
-					Bold(true)
+		Background(lipgloss.Color("#f7b731")).
+		Foreground(lipgloss.Color("#000000")).
+		Bold(true)
 	tableDefaultCellCursorStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#f6e58d")).
-					Foreground(lipgloss.Color("#000000"))
+		Background(lipgloss.Color("#f6e58d")).
+		Foreground(lipgloss.Color("#000000"))
 
 	tableDefaultSortAscChar  = "▲"
 	tableDefaultSortDescChar = "▼"
@@ -58,7 +58,7 @@ const (
 	StyleKeyCellCursor
 )
 
-type TableSortingOrderKey int
+type SortingOrderKey int
 
 const (
 	TableSortingAscending  = 0
@@ -117,12 +117,12 @@ type Table struct {
 	orderedColumnIndex int
 	// orderedColumnPhase remarks if the sort is asc or desc, basically works like a toggle
 	// 0 indicates desc sorting, 1 indicates
-	orderedColumnPhase TableSortingOrderKey
+	orderedColumnPhase SortingOrderKey
 
 	// rowsTopIndex top visible index
-	rowsTopIndex       int
-	cursorIndexY       int
-	cursorIndexX       int
+	rowsTopIndex int
+	cursorIndexY int
+	cursorIndexX int
 
 	height int
 	width  int
@@ -375,7 +375,7 @@ func (r *Table) AddRows(rows [][]any) (*Table, error) {
 		}
 	}
 	// append rows
-  r.rows = append(r.rows, rows...)
+	r.rows = append(r.rows, rows...)
 
 	r.applyFilter()
 	r.setRowsUpdate()
@@ -764,7 +764,7 @@ func isOrdered(e any) bool {
 
 // getStringFromOrdered returns string from interface that was produced with one of Ordered types
 func getStringFromOrdered(i any) string {
-  switch i := i.(type) {
+	switch i := i.(type) {
 	case string:
 		return i
 	case int:
@@ -790,7 +790,7 @@ func getStringFromOrdered(i any) string {
 
 // sortIndexByOrderedColumn casts to the one of Ordered type that is used on the column and sends to sorting
 // returns sorted index of elements rather than elements themselves
-func sortIndexByOrderedColumn(i []any, order TableSortingOrderKey) (sortedIndex []int) {
+func sortIndexByOrderedColumn(i []any, order SortingOrderKey) (sortedIndex []int) {
 	// if len of slice is 0 return empty sort order
 	if len(i) == 0 {
 		return sortedIndex
@@ -853,7 +853,7 @@ func sortIndexByOrderedColumn(i []any, order TableSortingOrderKey) (sortedIndex 
 
 // sortIndex is simple generic bubble sort, returns sorted index slice
 // bubble sort implemented for simplicity, if you need faster alg feel free to open a PR for it :zap:
-func sortIndex[T Ordered](slice []T, order TableSortingOrderKey) []int {
+func sortIndex[T Ordered](slice []T, order SortingOrderKey) []int {
 	// could do this in sortIndexByOrderedColumn where we cycle through the slice anyhow
 	// tho I think this is cheap op and makes code a bit cleaner, worthy trade for now
 	var index []int
