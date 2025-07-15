@@ -37,25 +37,25 @@ var (
 	tableDefaultSortDescChar = "▼"
 	tableDefaultFilterChar   = "⑂"
 
-	tableDefaultStyles = map[TableStyleKey]lipgloss.Style{
-		TableHeaderStyleKey:         tableDefaultHeaderStyle,
-		TableFooterStyleKey:         tableDefaultFooterStyle,
-		TableRowsStyleKey:           tableDefaultRowsStyle,
-		TableRowsSubsequentStyleKey: tableDefaultRowsSubsequentStyle,
-		TableRowsCursorStyleKey:     tableDefaultRowsCursorStyle,
-		TableCellCursorStyleKey:     tableDefaultCellCursorStyle,
+	tableDefaultStyles = map[StyleKey]lipgloss.Style{
+		StyleKeyHeader:         tableDefaultHeaderStyle,
+		StyleKeyFooter:         tableDefaultFooterStyle,
+		StyleKeyRows:           tableDefaultRowsStyle,
+		StyleKeyRowsSubsequent: tableDefaultRowsSubsequentStyle,
+		StyleKeyRowsCursor:     tableDefaultRowsCursorStyle,
+		StyleKeyCellCursor:     tableDefaultCellCursorStyle,
 	}
 )
 
-type TableStyleKey int
+type StyleKey int
 
 const (
-	TableHeaderStyleKey TableStyleKey = iota
-	TableFooterStyleKey
-	TableRowsStyleKey
-	TableRowsSubsequentStyleKey
-	TableRowsCursorStyleKey
-	TableCellCursorStyleKey
+	StyleKeyHeader StyleKey = iota
+	StyleKeyFooter
+	StyleKeyRows
+	StyleKeyRowsSubsequent
+	StyleKeyRowsCursor
+	StyleKeyCellCursor
 )
 
 type TableSortingOrderKey int
@@ -131,7 +131,7 @@ type Table struct {
 	// rowHeight fixed row height value, maybe this should be optional?
 	rowHeight int
 
-	styles map[TableStyleKey]lipgloss.Style
+	styles map[StyleKey]lipgloss.Style
 	// stylePassing if true, styles are passed all the way down from box to cell
 	stylePassing bool
 
@@ -263,7 +263,7 @@ func (r *Table) SetWidth(value int) *Table {
 
 // SetStyles allows overrides of styling elements of the table
 // When only a partial set of overrides are provided, the default styling will be used
-func (r *Table) SetStyles(styles map[TableStyleKey]lipgloss.Style) *Table {
+func (r *Table) SetStyles(styles map[StyleKey]lipgloss.Style) *Table {
 	mergedStyles := tableDefaultStyles
 	for key, style := range styles {
 		mergedStyles[key] = style
@@ -478,7 +478,7 @@ func (r *Table) Render() string {
 		lipgloss.Left,
 		r.headerBox.Render(),
 		r.rowsBox.Render(),
-		r.styles[TableFooterStyleKey].Width(r.width).Render(statusMessage),
+		r.styles[StyleKeyFooter].Width(r.width).Render(statusMessage),
 	)
 }
 
@@ -537,7 +537,7 @@ func (r *Table) updateHeader() *Table {
 		return r
 	}
 	var cells []*flexbox.Cell
-	r.headerBox.SetStyle(r.styles[TableHeaderStyleKey])
+	r.headerBox.SetStyle(r.styles[StyleKeyHeader])
 	for i, title := range r.columnHeaders {
 		// titleSuffix at the moment can be sort and filter characters
 		// filtering symbol should be visible always, if possible of course, and as far right as possible
@@ -631,7 +631,7 @@ func (r *Table) updateRows() {
 				SetContent(getStringFromOrdered(column))
 			// update style if cursor is on the cell, otherwise it's inherited from the row
 			if irCorrected == r.cursorIndexY && ic == r.cursorIndexX {
-				c.SetStyle(r.styles[TableCellCursorStyleKey])
+				c.SetStyle(r.styles[StyleKeyCellCursor])
 			}
 			cells = append(cells, c)
 		}
@@ -642,11 +642,11 @@ func (r *Table) updateRows() {
 		// normal and subsequent rows should differ for readability
 		// TODO: make this ^ optional
 		if irCorrected == r.cursorIndexY {
-			rw.SetStyle(r.styles[TableRowsCursorStyleKey])
+			rw.SetStyle(r.styles[StyleKeyRowsCursor])
 		} else if irCorrected%2 == 0 || irCorrected == 0 {
-			rw.SetStyle(r.styles[TableRowsSubsequentStyleKey])
+			rw.SetStyle(r.styles[StyleKeyRowsSubsequent])
 		} else {
-			rw.SetStyle(r.styles[TableRowsStyleKey])
+			rw.SetStyle(r.styles[StyleKeyRows])
 		}
 
 		rows = append(rows, rw)
