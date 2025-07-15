@@ -61,8 +61,8 @@ const (
 type SortingOrderKey int
 
 const (
-	TableSortingAscending  = 0
-	TableSortingDescending = 1
+	SortingOrderAscending SortingOrderKey = iota
+	SortingOrderDescending
 )
 
 type Ordered interface {
@@ -169,7 +169,7 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 
 		columnType:         defaultTypes,
 		orderedColumnIndex: -1,
-		orderedColumnPhase: TableSortingDescending,
+		orderedColumnPhase: SortingOrderDescending,
 
 		filteredColumn: -1,
 		filterString:   "",
@@ -420,7 +420,7 @@ func (r *Table) GetOrder() (int, int) {
 func (r *Table) OrderByAsc(index int) *Table {
 	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
 	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
-		r.orderedColumnPhase = TableSortingAscending
+		r.orderedColumnPhase = SortingOrderAscending
 		r.sortRows(index)
 		r.orderedColumnIndex = index
 		r.setHeadersUpdate()
@@ -432,7 +432,7 @@ func (r *Table) OrderByAsc(index int) *Table {
 func (r *Table) OrderByDesc(index int) *Table {
 	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
 	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
-		r.orderedColumnPhase = TableSortingDescending
+		r.orderedColumnPhase = SortingOrderDescending
 		r.sortRows(index)
 		r.orderedColumnIndex = index
 		r.setHeadersUpdate()
@@ -554,9 +554,9 @@ func (r *Table) updateHeader() *Table {
 
 			// add sorting symbol if the sorting is active on the column
 			if r.orderedColumnIndex == i {
-				if r.orderedColumnPhase == TableSortingDescending {
+				if r.orderedColumnPhase == SortingOrderDescending {
 					titleSuffix = " " + tableDefaultSortDescChar
-				} else if r.orderedColumnPhase == TableSortingAscending {
+				} else if r.orderedColumnPhase == SortingOrderAscending {
 					titleSuffix = " " + tableDefaultSortAscChar
 				}
 			}
@@ -687,14 +687,14 @@ func (r *Table) updateOrderedVars(index int) {
 	// toggle between ascending and descending and set default first sort to ascending
 	if r.orderedColumnIndex == index {
 		switch r.orderedColumnPhase {
-		case TableSortingAscending:
-			r.orderedColumnPhase = TableSortingDescending
+		case SortingOrderAscending:
+			r.orderedColumnPhase = SortingOrderDescending
 
-		case TableSortingDescending:
-			r.orderedColumnPhase = TableSortingAscending
+		case SortingOrderDescending:
+			r.orderedColumnPhase = SortingOrderAscending
 		}
 	} else {
-		r.orderedColumnPhase = TableSortingDescending
+		r.orderedColumnPhase = SortingOrderDescending
 	}
 	r.orderedColumnIndex = index
 
@@ -864,10 +864,10 @@ func sortIndex[T Ordered](slice []T, order SortingOrderKey) []int {
 	// bubble sort slice and update index in a process
 	for i := len(slice); i > 0; i-- {
 		for j := 1; j < i; j++ {
-			if order == TableSortingDescending && slice[j] < slice[j-1] {
+			if order == SortingOrderDescending && slice[j] < slice[j-1] {
 				slice[j], slice[j-1] = slice[j-1], slice[j]
 				index[j], index[j-1] = index[j-1], index[j]
-			} else if order == TableSortingAscending && slice[j] > slice[j-1] {
+			} else if order == SortingOrderAscending && slice[j] > slice[j-1] {
 				slice[j], slice[j-1] = slice[j-1], slice[j]
 				index[j], index[j-1] = index[j-1], index[j]
 			}
