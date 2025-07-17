@@ -69,30 +69,30 @@ type Ordered interface {
 	int | int8 | int32 | int16 | int64 | float32 | float64 | string
 }
 
-// TableBadTypeError type does not match Ordered interface types
-type TableBadTypeError struct {
+// ErrorBadType type does not match Ordered interface types
+type ErrorBadType struct {
 	msg string
 }
 
-func (e TableBadTypeError) Error() string {
+func (e ErrorBadType) Error() string {
 	return e.msg
 }
 
-// TableRowLenError row length is not matching headers len
-type TableRowLenError struct {
+// ErrorRowLen row length is not matching headers len
+type ErrorRowLen struct {
 	msg string
 }
 
-func (e TableRowLenError) Error() string {
+func (e ErrorRowLen) Error() string {
 	return e.msg
 }
 
-// TableBadCellTypeError type of cell does not match type of column
-type TableBadCellTypeError struct {
+// ErrorBadCellType type of cell does not match type of column
+type ErrorBadCellType struct {
 	msg string
 }
 
-func (e TableBadCellTypeError) Error() string {
+func (e ErrorBadCellType) Error() string {
 	return e.msg
 }
 
@@ -220,7 +220,7 @@ func (r *Table) SetTypes(columnTypes ...any) (*Table, error) {
 			message := fmt.Sprintf(
 				"column of type %s on index %d is not of type Ordered", reflect.TypeOf(t).String(), i,
 			)
-			return r, TableBadTypeError{msg: message}
+			return r, ErrorBadType{msg: message}
 		}
 	}
 	r.cursorIndexY, r.cursorIndexX = 0, 0
@@ -507,7 +507,7 @@ func (r *Table) validateRow(cells ...any) error {
 		message = fmt.Sprintf(
 			"len of row[%d] does not equal number of columns[%d]", len(cells), len(r.columnType),
 		)
-		return TableRowLenError{msg: message}
+		return ErrorRowLen{msg: message}
 	}
 	// check cell type
 	for i, c := range cells {
@@ -519,13 +519,13 @@ func (r *Table) validateRow(cells ...any) error {
 					"type of the cell[%v] on index %d not matching type of the column[%v]",
 					reflect.TypeOf(c), i, reflect.TypeOf(r.columnType[i]),
 				)
-				return TableBadCellTypeError{msg: message}
+				return ErrorBadCellType{msg: message}
 			}
 		default:
 			message = fmt.Sprintf(
 				"type[%v] on index %d not matching Ordered interface types", reflect.TypeOf(c), i,
 			)
-			return TableBadTypeError{msg: message}
+			return ErrorBadType{msg: message}
 		}
 	}
 	return nil
