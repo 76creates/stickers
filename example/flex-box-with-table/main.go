@@ -32,7 +32,7 @@ var (
 
 type model struct {
 	flexBox *flexbox.FlexBox
-	table   *table.TableSingleType[string]
+	table   *table.Table
 	headers []string
 }
 
@@ -51,18 +51,27 @@ func main() {
 	}
 
 	headers := data[0]
-	rows := data[1:]
+	rows := make([][]any, len(data[1:]))
+	for i, row := range data[1:] {
+		rows[i] = make([]any, len(headers))
+		for j, cell := range row {
+			rows[i][j] = cell
+		}
+	}
 	ratio := []int{1, 10, 10, 5, 10}
 	minSize := []int{4, 5, 5, 2, 5}
 
 	m := model{
 		flexBox: flexbox.New(0, 0).SetStyle(styleBackground),
-		table:   table.NewTableSingleType[string](0, 0, headers),
+		table:   table.NewTable(0, 0, headers),
 		headers: headers,
 	}
 
 	m.table.SetRatio(ratio).SetMinWidth(minSize)
-	m.table.AddRows(rows).SetStylePassing(true)
+	if _, err := m.table.AddRows(rows); err != nil {
+		panic(err)
+	}
+	m.table.SetStylePassing(true)
 
 	r1 := m.flexBox.NewRow().AddCells(
 		flexbox.NewCell(5, 5).SetStyle(style2),
