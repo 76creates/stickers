@@ -122,7 +122,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.CursorRight()
 		case "ctrl+s":
 			x, _ := m.table.GetCursorLocation()
-			m.table.OrderByColumn(x)
+			_, order := m.table.GetOrder()
+			switch order {
+			case table.SortingOrderAscending:
+				m.table.OrderByDesc(x)
+			case table.SortingOrderDescending:
+				m.table.OrderByAsc(x)
+			}
 		case "enter", " ":
 			selectedValue = m.table.GetCursorValue()
 			m.infoBox.GetRow(0).GetCell(1).SetContent("\nselected cell: " + selectedValue)
