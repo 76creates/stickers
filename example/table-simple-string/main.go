@@ -16,7 +16,7 @@ import (
 var selectedValue string = "\nselect something with spacebar or enter"
 
 type model struct {
-	table   *table.TableSingleType[string]
+	table   *table.Table
 	infoBox *flexbox.FlexBox
 	headers []string
 }
@@ -36,12 +36,18 @@ func main() {
 	}
 
 	headers := data[0]
-	rows := data[1:]
+	rows := make([][]any, len(data[1:]))
+	for i, row := range data[1:] {
+		rows[i] = make([]any, len(headers))
+		for j, cell := range row {
+			rows[i][j] = cell
+		}
+	}
 	ratio := []int{1, 10, 10, 5, 10}
 	minSize := []int{4, 5, 5, 2, 5}
 
 	m := model{
-		table:   table.NewTableSingleType[string](0, 0, headers),
+		table:   table.NewTable(0, 0, headers),
 		infoBox: flexbox.New(0, 0).SetHeight(7),
 		headers: headers,
 	}
@@ -49,7 +55,9 @@ func main() {
 	// setup
 	m.table.SetRatio(ratio).SetMinWidth(minSize)
 	// add rows
-	m.table.AddRows(rows)
+	if _, err := m.table.AddRows(rows); err != nil {
+		panic(err)
+	}
 
 	// setup info box
 	infoText := `
