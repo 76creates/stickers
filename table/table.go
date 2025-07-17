@@ -397,24 +397,8 @@ func (r *Table) ClearRows() *Table {
 	return r
 }
 
-// OrderByColumn orders rows by a column with the index n, simple bubble sort, nothing too fancy
-// does not apply when there is less than 2 row in a table
-// Deprecated: this function will be removed in a future release
-// TODO: this messes up numbering that one might use, implement automatic indexing of rows
-// TODO: allow user to disable ordering
-func (r *Table) OrderByColumn(index int) *Table {
-	// sanity check first, we won't return errors here, simply ignore if the user sends non existing index
-	if index < len(r.columnHeaders) && len(r.filteredRows) > 1 {
-		r.updateOrderedVars(index)
-		r.sortRows(index)
-	}
-	return r
-}
-
-// GetOrder returns the current order column index and phase (0 for asc, 1 for desc)
-func (r *Table) GetOrder() (int, int) {
-	return r.orderedColumnIndex, int(r.orderedColumnPhase)
-}
+// GetOrder returns the current order column index and phase
+func (r *Table) GetOrder() (int, SortingOrderKey) { return r.orderedColumnIndex, r.orderedColumnPhase }
 
 // OrderByAsc orders rows by a column with index n, in ascending order
 func (r *Table) OrderByAsc(index int) *Table {

@@ -117,7 +117,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.CursorRight()
 		case "ctrl+s":
 			x, _ := m.table.GetCursorLocation()
-			m.table.OrderByColumn(x)
+			_, order := m.table.GetOrder()
+			switch order {
+			case table.SortingOrderAscending:
+				m.table.OrderByDesc(x)
+			case table.SortingOrderDescending:
+				m.table.OrderByAsc(x)
+			}
 		case "enter", " ":
 			cellString := m.table.GetCursorValue()
 			// add content to random boxes on flex box
