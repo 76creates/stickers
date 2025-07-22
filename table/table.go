@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"reflect"
-	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -62,14 +61,18 @@ const (
 type Table struct {
 	// columnRatio ratio of the columns, is applied to rows as well
 	columnRatio []int
+	// TODO: would be good to add a suffix "array" or "list" to fields of array type
+	// TODO: change type to uint8
 	// columnMinWidth minimal width of the column
 	columnMinWidth []int
+
 	// columnHeaders column text headers
 	// TODO: make this optional, as well as footer
 	columnHeaders []string
 	columnType    []any
 	rows          [][]any
 
+	// filteredRows is the rows that are visible after filtering
 	filteredRows   [][]any
 	filteredColumn int
 	filterString   string
@@ -81,10 +84,16 @@ type Table struct {
 	// 0 indicates desc sorting, 1 indicates
 	orderedColumnPhase SortingOrderKey
 
+	// TODO: rename rowsTopIndex to follow columnVisibleLeftIndex format
 	// rowsTopIndex top visible index
-	rowsTopIndex int
-	cursorIndexY int
-	cursorIndexX int
+	rowsTopIndex    int
+	cursorIndexY    int
+	cursorIndexX    int
+	cursorDirection cursorDirection // not sure if needed
+
+	// columnVisibleLeftIndex and columnVisibleRightIndex are used to calculate the columns on the screen
+	columnVisibleLeftIndex  int
+	columnVisibleRightIndex int
 
 	height int
 	width  int
@@ -123,11 +132,14 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 	styles := tableDefaultStyles
 
 	r := &Table{
-		columnHeaders:  columnHeaders,
-		columnRatio:    columnRatio,
-		columnMinWidth: columnMinWidth,
-		cursorIndexX:   0,
-		cursorIndexY:   0,
+		columnHeaders:           columnHeaders,
+		columnRatio:             columnRatio,
+		columnMinWidth:          columnMinWidth,
+		cursorIndexX:            0,
+		cursorIndexY:            0,
+		cursorDirection:         cursorDirectionUpLeft,
+		columnVisibleLeftIndex:  0,
+		columnVisibleRightIndex: 0,
 
 		columnType:         defaultTypes,
 		orderedColumnIndex: -1,
@@ -150,6 +162,7 @@ func NewTable(width, height int, columnHeaders []string) *Table {
 		styles:       styles,
 		stylePassing: false,
 	}
+	r.recalculateVisibleColumnRange()
 	r.setHeadersUpdate()
 	return r
 }
@@ -220,7 +233,13 @@ func (r *Table) SetWidth(value int) *Table {
 	r.width = value
 	r.rowsBox.SetWidth(value)
 	r.headerBox.SetWidth(value)
+	r.recalculateVisibleColumnRange()
 	return r
+}
+
+// GetVisibleColumnRange returns the left and right visible column indexes
+func (r *Table) GetVisibleColumnRange() (int, int) {
+	return r.columnVisibleLeftIndex, r.columnVisibleRightIndex
 }
 
 // SetStyles allows overrides of styling elements of the table
@@ -276,6 +295,7 @@ func (r *Table) GetFilter() (columnIndex int, s string) {
 // CursorDown move table cursor down
 func (r *Table) CursorDown() *Table {
 	if r.cursorIndexY+1 < len(r.filteredRows) {
+		r.cursorDirection = r.cursorDirection.setDown()
 		r.cursorIndexY++
 		r.setTopRow()
 		r.setRowsUpdate()
@@ -286,6 +306,7 @@ func (r *Table) CursorDown() *Table {
 // CursorUp move table cursor up
 func (r *Table) CursorUp() *Table {
 	if r.cursorIndexY-1 > -1 {
+		r.cursorDirection = r.cursorDirection.setUp()
 		r.cursorIndexY--
 		r.setTopRow()
 		r.setRowsUpdate()
@@ -296,9 +317,11 @@ func (r *Table) CursorUp() *Table {
 // CursorLeft move table cursor left
 func (r *Table) CursorLeft() *Table {
 	if r.cursorIndexX-1 > -1 {
+		r.cursorDirection = r.cursorDirection.setLeft()
 		r.cursorIndexX--
 		// TODO: update row only
 		r.setRowsUpdate()
+		r.checkVisibleColumnRange()
 	}
 	return r
 }
@@ -306,9 +329,11 @@ func (r *Table) CursorLeft() *Table {
 // CursorRight move table cursor right
 func (r *Table) CursorRight() *Table {
 	if r.cursorIndexX+1 < len(r.columnHeaders) {
+		r.cursorDirection = r.cursorDirection.setRight()
 		r.cursorIndexX++
 		// TODO: update row only
 		r.setRowsUpdate()
+		r.checkVisibleColumnRange()
 	}
 	return r
 }
@@ -439,56 +464,55 @@ func (r *Table) updateHeader() *Table {
 	}
 	var cells []*flexbox.Cell
 	r.headerBox.SetStyle(r.styles[StyleKeyHeader])
-	for i, title := range r.columnHeaders {
-		// titleSuffix at the moment can be sort and filter characters
-		// filtering symbol should be visible always, if possible of course, and as far right as possible
-		// there should be a minimum of space bar between two symbols and symbol and row to the right
-		var titleSuffix string
-		_h := r.headerBox.GetRow(0)
-		// skip the case when we initialize table
-		if _h != nil {
-			_c := _h.GetCellCopy(i)
-			if _c == nil {
-				panic("cell with index " + strconv.Itoa(i) + " is nil")
-			}
-			_w := _c.GetWidth()
 
-			// add sorting symbol if the sorting is active on the column
-			if r.orderedColumnIndex == i {
-				if r.orderedColumnPhase == SortingOrderDescending {
-					titleSuffix = " " + tableDefaultSortDescChar
-				} else if r.orderedColumnPhase == SortingOrderAscending {
-					titleSuffix = " " + tableDefaultSortAscChar
-				}
-			}
-
-			// add filtering symbol if the filtering is active on the column
-			if r.filteredColumn == i && r.filterString != "" {
-				// add at least one space bar between char to the left, and one to the right
-				titleSuffix = titleSuffix + strings.Repeat(
-					" ", int(math.Max(
-						1,
-						float64(
-							_w-utf8.RuneCountInString(title+titleSuffix)-2,
-						),
-					)),
-				) + tableDefaultFilterChar + " "
-			}
-
-			// if title and suffix exceed width trim the title
-			if _w-utf8.RuneCountInString(title+titleSuffix) < 0 {
-				// this will be the cae only when sort is on and filter is off
-				// add one space bar between sort and column to the right
-				if utf8.RuneCountInString(titleSuffix) == 2 {
-					titleSuffix = titleSuffix + " "
-				}
-				// trim the title
-				title = title[0:int(math.Max(0, float64(_w-utf8.RuneCountInString(titleSuffix))))]
-			}
-		}
+	leftmostColumnIndex, rightmostColumnIndex := r.columnVisibleLeftIndex, r.columnVisibleRightIndex
+	if r.width == 0 {
+		// this is the case when we initialize the table and width is not set yet
+		rightmostColumnIndex = len(r.columnHeaders) - 1
+	}
+	for index := leftmostColumnIndex; index <= rightmostColumnIndex; index++ {
+		title := r.columnHeaders[index]
 		cells = append(
 			cells,
-			flexbox.NewCell(r.columnRatio[i], 1).SetMinWidth(r.columnMinWidth[i]).SetContent(title+titleSuffix),
+			flexbox.NewCell(r.columnRatio[index], 1).SetMinWidth(r.columnMinWidth[index]).SetContentGenerator(func(maxX, maxY int) string {
+				// titleSuffix at the moment can be sort and filter characters
+				// filtering symbol should be visible always, if possible of course, and as far right as possible
+				// there should be a minimum of space bar between two symbols and symbol and row to the right
+				var titleSuffix string
+				// add sorting symbol if the sorting is active on the column
+				if r.orderedColumnIndex == index {
+					if r.orderedColumnPhase == SortingOrderDescending {
+						titleSuffix = " " + tableDefaultSortDescChar
+					} else if r.orderedColumnPhase == SortingOrderAscending {
+						titleSuffix = " " + tableDefaultSortAscChar
+					}
+				}
+
+				// add filtering symbol if the filtering is active on the column
+				if r.filteredColumn == index && r.filterString != "" {
+					// add at least one space bar between char to the left, and one to the right
+					titleSuffix = titleSuffix + strings.Repeat(
+						" ", int(math.Max(
+							1,
+							float64(
+								maxX-utf8.RuneCountInString(title+titleSuffix)-2,
+							),
+						)),
+					) + tableDefaultFilterChar + " "
+				}
+
+				// if title and suffix exceed width trim the title
+				if maxX-utf8.RuneCountInString(title+titleSuffix) < 0 {
+					// this will be the cae only when sort is on and filter is off
+					// add one space bar between sort and column to the right
+					if utf8.RuneCountInString(titleSuffix) == 2 {
+						titleSuffix = titleSuffix + " "
+					}
+					// trim the title
+					title = title[0:int(math.Max(0, float64(maxX-utf8.RuneCountInString(titleSuffix))))]
+				}
+				return title + titleSuffix
+			}),
 		)
 	}
 	r.headerBox.SetRows(
@@ -525,13 +549,14 @@ func (r *Table) updateRows() {
 		irCorrected := ir + r.rowsTopIndex
 
 		var cells []*flexbox.Cell
-		for ic, column := range columns {
+		for ic, column := range columns[r.columnVisibleLeftIndex : r.columnVisibleRightIndex+1] {
+			icCorrected := ic + r.columnVisibleLeftIndex
 			// initialize column cell
 			c := flexbox.NewCell(r.columnRatio[ic], r.rowHeight).
 				SetMinWidth(r.columnMinWidth[ic]).
 				SetContent(getStringFromOrdered(column))
 			// update style if cursor is on the cell, otherwise it's inherited from the row
-			if irCorrected == r.cursorIndexY && ic == r.cursorIndexX {
+			if irCorrected == r.cursorIndexY && icCorrected == r.cursorIndexX {
 				c.SetStyle(r.styles[StyleKeyCellCursor])
 			}
 			cells = append(cells, c)
@@ -630,4 +655,52 @@ func (r *Table) setTopRow() {
 		r.rowsTopIndex = r.cursorIndexY - r.rowsBoxHeight + 1
 		return
 	}
+}
+
+func (r *Table) recalculateVisibleColumnRange() {
+	var totalWidth int
+	r.setRowsUpdate()
+	r.setHeadersUpdate()
+	if r.cursorDirection.isRight() {
+		r.columnVisibleLeftIndex, totalWidth = r.columnIndexSeekLeft(r.cursorIndexX, 0)
+		r.columnVisibleRightIndex, totalWidth = r.columnIndexSeekRight(r.cursorIndexX+1, totalWidth)
+	} else {
+		r.columnVisibleRightIndex, totalWidth = r.columnIndexSeekRight(r.cursorIndexX, totalWidth)
+		r.columnVisibleLeftIndex, totalWidth = r.columnIndexSeekLeft(r.cursorIndexX-1, totalWidth)
+	}
+	return
+}
+
+func (r *Table) columnIndexSeekLeft(index int, widthAdded int) (int, int) {
+	for i := index; i >= 0; i-- {
+		if widthAdded+r.columnMinWidth[i] > r.width {
+			return i + 1, widthAdded
+		}
+		widthAdded += r.columnMinWidth[i]
+		if widthAdded == r.width || i == 0 {
+			return i, widthAdded
+		}
+	}
+	return 0, widthAdded
+}
+
+func (r *Table) columnIndexSeekRight(index int, widthAdded int) (int, int) {
+	for i := index; i < len(r.columnHeaders); i++ {
+		if widthAdded+r.columnMinWidth[i] > r.width {
+			return i - 1, widthAdded
+		}
+		widthAdded += r.columnMinWidth[i]
+		if widthAdded == r.width || i == len(r.columnHeaders)-1 {
+			return i, widthAdded
+		}
+	}
+	return len(r.columnHeaders) - 1, widthAdded
+}
+
+// checkVisibleColumnRange should be executed only after the cursor is moved left or right
+func (r *Table) checkVisibleColumnRange() {
+	if r.cursorIndexX < r.columnVisibleLeftIndex || r.cursorIndexX > r.columnVisibleRightIndex {
+		r.recalculateVisibleColumnRange()
+	}
+	return
 }
