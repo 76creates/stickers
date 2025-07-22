@@ -23,9 +23,11 @@ type Cell struct {
 	// minHeight minimal height of the cell
 	minHeight int
 
-	width   int
-	height  int
-	content string
+	width  int
+	height int
+	// contentGenerator is a function that generates the content of the cell depending on the
+	// size of the cell, this can be useful for wrapping text or generating dynamic content.
+	contentGenerator func(maxX, maxY int) string
 }
 
 // NewCell initialize FlexBoxCell object with defaults
@@ -48,13 +50,21 @@ func (r *Cell) SetID(id string) *Cell {
 
 // SetContent sets the cells content
 func (r *Cell) SetContent(content string) *Cell {
-	r.content = content
+	r.contentGenerator = func(_, _ int) string {
+		return content
+	}
+	return r
+}
+
+// SetContentGenerator sets the cells content generator function
+func (r *Cell) SetContentGenerator(generator func(maxX, maxY int) string) *Cell {
+	r.contentGenerator = generator
 	return r
 }
 
 // GetContent returns the cells raw content
 func (r *Cell) GetContent() string {
-	return r.content
+	return r.contentGenerator(r.getMaxWidth(), r.getMaxHeight())
 }
 
 // SetMinWidth sets the cells minimum width, this will not disable responsivness.
@@ -64,10 +74,9 @@ func (r *Cell) SetMinWidth(value int) *Cell {
 	return r
 }
 
-
 // Deprecated: use [*Cell.SetMinHeight]
 func (r *Cell) SetMinHeigth(value int) *Cell {
-  return r.SetMinHeight(value)
+	return r.SetMinHeight(value)
 }
 
 // SetMinHeight sets the cells minimum height, this will not disable responsivness.
@@ -111,7 +120,7 @@ func (r *Cell) render(inherited ...lipgloss.Style) string {
 	s := r.GetStyle().
 		Width(r.getContentWidth()).MaxWidth(r.getMaxWidth()).
 		Height(r.getContentHeight()).MaxHeight(r.getMaxHeight())
-	return s.Render(r.content)
+	return s.Render(r.GetContent())
 }
 
 func (r *Cell) getContentWidth() int {
