@@ -43,23 +43,23 @@ func main() {
 
 	columns := []*flexbox.Column{
 		m.flexBox.NewColumn().AddCells(
-			flexbox.NewCell(1, 1).SetStyle(style1),
-			flexbox.NewCell(1, 1).SetStyle(style2),
+			flexbox.NewCell(1, 1).SetContent("").SetStyle(style1),
+			flexbox.NewCell(1, 1).SetContent("").SetStyle(style2),
 		),
 		m.flexBox.NewColumn().AddCells(
-			flexbox.NewCell(2, 1).SetStyle(style3),
+			flexbox.NewCell(2, 1).SetContent("").SetStyle(style3),
 		),
 		m.flexBox.NewColumn().AddCells(
-			flexbox.NewCell(1, 1).SetStyle(style4),
-			flexbox.NewCell(1, 2).SetStyle(style5),
-			flexbox.NewCell(1, 1).SetStyle(style6),
+			flexbox.NewCell(1, 1).SetContent("").SetStyle(style4),
+			flexbox.NewCell(1, 2).SetContent("").SetStyle(style5),
+			flexbox.NewCell(1, 1).SetContent("").SetStyle(style6),
 		),
 	}
 
 	m.flexBox.AddColumns(columns)
 
 	p := tea.NewProgram(&m, tea.WithAltScreen())
-	if err := p.Start(); err != nil {
+	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
@@ -81,6 +81,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	return m, nil
 }
+
 func (m *model) View() string {
 	return m.flexBox.Render()
 }
