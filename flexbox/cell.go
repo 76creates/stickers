@@ -1,7 +1,7 @@
 package flexbox
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // Cell is a building block object of the FlexBox, it represents a single cell within a box

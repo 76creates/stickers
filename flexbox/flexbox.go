@@ -1,6 +1,6 @@
 package flexbox
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // FlexBox responsive box grid inspired by CSS flexbox
 type FlexBox struct {
