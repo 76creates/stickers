@@ -3,7 +3,7 @@ package flexbox
 import (
 	"strconv"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // Column is the container for the cells, this object has the least to do with the ratio

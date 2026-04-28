@@ -1,6 +1,6 @@
 package flexbox
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // HorizontalFlexBox responsive box grid inspired by CSS flexbox
 type HorizontalFlexBox struct {

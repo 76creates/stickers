@@ -7,10 +7,10 @@ import (
 	"os"
 	"unicode"
 
+	"charm.land/lipgloss/v2"
 	"github.com/76creates/stickers/flexbox"
 	"github.com/76creates/stickers/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 var selectedValue string = "\nselect something with spacebar or enter"

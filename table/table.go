@@ -9,28 +9,28 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"charm.land/lipgloss/v2"
 	"github.com/76creates/stickers/flexbox"
-	"github.com/charmbracelet/lipgloss"
 )
 
 var (
 	tableDefaultHeaderStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#7158e2")).
-		Foreground(lipgloss.Color("#ffffff"))
+				Background(lipgloss.Color("#7158e2")).
+				Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultFooterStyle = tableDefaultHeaderStyle.Align(lipgloss.Right).Height(1)
 	tableDefaultRowsStyle   = lipgloss.NewStyle().
-		Background(lipgloss.Color("#4b4b4b")).
-		Foreground(lipgloss.Color("#ffffff"))
+				Background(lipgloss.Color("#4b4b4b")).
+				Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsSubsequentStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#3d3d3d")).
-		Foreground(lipgloss.Color("#ffffff"))
+					Background(lipgloss.Color("#3d3d3d")).
+					Foreground(lipgloss.Color("#ffffff"))
 	tableDefaultRowsCursorStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#f7b731")).
-		Foreground(lipgloss.Color("#000000")).
-		Bold(true)
+					Background(lipgloss.Color("#f7b731")).
+					Foreground(lipgloss.Color("#000000")).
+					Bold(true)
 	tableDefaultCellCursorStyle = lipgloss.NewStyle().
-		Background(lipgloss.Color("#f6e58d")).
-		Foreground(lipgloss.Color("#000000"))
+					Background(lipgloss.Color("#f6e58d")).
+					Foreground(lipgloss.Color("#000000"))
 
 	tableDefaultSortAscChar  = "▲"
 	tableDefaultSortDescChar = "▼"
