@@ -1,5 +1,5 @@
 # Stickers 👾
-Is a collection of TUI elements, FlexBox and Table at the moment, its build for [bubbletea](https://github.com/charmbracelet/bubbletea) using [lipgloss](https://github.com/charmbracelet/lipgloss).
+It is a collection of TUI elements—FlexBox and Table—built for [Bubble Tea v2](https://github.com/charmbracelet/bubbletea) using [Lip Gloss v2](https://github.com/charmbracelet/lipgloss).
 
 ![Demo](https://raw.githubusercontent.com/76creates/stickers/master/.github/images/flex-box-with-table.gif)
 

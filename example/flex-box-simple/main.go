@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/76creates/stickers/flexbox"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
@@ -74,8 +74,8 @@ func main() {
 
 	m.flexBox.AddRows(rows)
 
-	p := tea.NewProgram(&m, tea.WithAltScreen())
-	if err := p.Start(); err != nil {
+	p := tea.NewProgram(&m)
+	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
@@ -88,7 +88,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.flexBox.SetWidth(msg.Width)
 		m.flexBox.SetHeight(msg.Height)
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -97,6 +97,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	return m, nil
 }
-func (m *model) View() string {
-	return m.flexBox.Render()
+func (m *model) View() tea.View {
+	view := tea.NewView(m.flexBox.Render())
+	view.AltScreen = true
+	return view
 }
