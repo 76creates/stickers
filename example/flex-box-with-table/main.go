@@ -9,10 +9,10 @@ import (
 	"strings"
 	"unicode"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/76creates/stickers/flexbox"
 	"github.com/76creates/stickers/table"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
@@ -94,8 +94,8 @@ func main() {
 	_rows := []*flexbox.Row{r1, r2, r3}
 	m.flexBox.AddRows(_rows)
 
-	p := tea.NewProgram(&m, tea.WithAltScreen())
-	if err := p.Start(); err != nil {
+	p := tea.NewProgram(&m)
+	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
@@ -112,7 +112,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.flexBox.SetHeight(windowHeight)
 		m.table.SetWidth(windowWidth)
 		m.table.SetHeight(windowHeight)
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
@@ -133,7 +133,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case table.SortingOrderDescending:
 				m.table.OrderByAsc(x)
 			}
-		case "enter", " ":
+		case "enter", "space":
 			cellString := m.table.GetCursorValue()
 			// add content to random boxes on flex box
 			for ir := 0; ir < m.flexBox.RowsLen(); ir++ {
@@ -155,10 +155,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "backspace":
 			m.filterWithStr(msg.String())
 		default:
-			if len(msg.String()) == 1 {
-				r := msg.Runes[0]
+			if runes := []rune(msg.Text); len(runes) == 1 {
+				r := runes[0]
 				if unicode.IsLetter(r) || unicode.IsDigit(r) {
-					m.filterWithStr(msg.String())
+					m.filterWithStr(string(r))
 				}
 			}
 		}
@@ -189,7 +189,7 @@ func (m *model) filterWithStr(key string) {
 	m.table.SetFilter(i, s)
 }
 
-func (m *model) View() string {
+func (m *model) View() tea.View {
 	m.flexBox.ForceRecalculate()
 	_r := m.flexBox.GetRow(tableRowIndex)
 	if _r == nil {
@@ -203,5 +203,7 @@ func (m *model) View() string {
 	m.table.SetHeight(_c.GetHeight())
 	_c.SetContent(m.table.Render())
 
-	return m.flexBox.Render()
+	view := tea.NewView(m.flexBox.Render())
+	view.AltScreen = true
+	return view
 }

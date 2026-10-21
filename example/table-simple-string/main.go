@@ -7,10 +7,10 @@ import (
 	"os"
 	"unicode"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/76creates/stickers/flexbox"
 	"github.com/76creates/stickers/table"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 var selectedValue string = "\nselect something with spacebar or enter"
@@ -79,8 +79,8 @@ ctrl+c: quit
 	)
 	m.infoBox.AddRows([]*flexbox.Row{r1})
 
-	p := tea.NewProgram(&m, tea.WithAltScreen())
-	if err := p.Start(); err != nil {
+	p := tea.NewProgram(&m)
+	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
@@ -94,7 +94,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.table.SetWidth(msg.Width)
 		m.table.SetHeight(msg.Height - m.infoBox.GetHeight())
 		m.infoBox.SetWidth(msg.Width)
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -115,16 +115,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case table.SortingOrderDescending:
 				m.table.OrderByAsc(x)
 			}
-		case "enter", " ":
+		case "enter", "space":
 			selectedValue = m.table.GetCursorValue()
 			m.infoBox.GetRow(0).GetCell(1).SetContent("\nselected cell: " + selectedValue)
 		case "backspace":
 			m.filterWithStr(msg.String())
 		default:
-			if len(msg.String()) == 1 {
-				r := msg.Runes[0]
+			if runes := []rune(msg.Text); len(runes) == 1 {
+				r := runes[0]
 				if unicode.IsLetter(r) || unicode.IsDigit(r) {
-					m.filterWithStr(msg.String())
+					m.filterWithStr(string(r))
 				}
 			}
 		}
@@ -155,6 +155,8 @@ func (m *model) filterWithStr(key string) {
 	m.table.SetFilter(i, s)
 }
 
-func (m *model) View() string {
-	return lipgloss.JoinVertical(lipgloss.Left, m.table.Render(), m.infoBox.Render())
+func (m *model) View() tea.View {
+	view := tea.NewView(lipgloss.JoinVertical(lipgloss.Left, m.table.Render(), m.infoBox.Render()))
+	view.AltScreen = true
+	return view
 }

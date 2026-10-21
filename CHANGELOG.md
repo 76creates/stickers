@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## Unreleased
+### Updates
+- Migrated the examples to Bubble Tea v2; the `flexbox` and `table` package APIs are unchanged.
+
 ## [v1.4.2](https://github.com/76creates/stickers/compare/v1.4.1...v1.4.2) (2025-09-29)
 ### ⚠ BREAKING CHANGES
 - `TableStyleKey` is now `StyleKey`, and names of the keys better reflect their purpose within their package
